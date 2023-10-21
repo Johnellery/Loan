@@ -1,0 +1,379 @@
+   // Tables\Columns\TextColumn::make('bike.price')
+                // ->label('Total contract price')
+                // ->numeric(
+                //     decimalPlaces: 2,
+                //     decimalSeparator: '.',
+                //     thousandsSeparator: ',',
+                // ),
+                // Tables\Columns\TextColumn::make('total_interest')
+                //  ->numeric(
+                //      decimalPlaces: 2,
+                //      decimalSeparator: '.',
+                //      thousandsSeparator: ',',
+                //  )
+                //  ->description(function (Applicant $record) {
+                //      return "{$record->bike->rate}%";
+                //  }),
+
+                // Tables\Columns\TextColumn::make('plus')
+                // ->label('Total amount')
+                // ->numeric(
+                //     decimalPlaces: 2,
+                //     decimalSeparator: '.',
+                //     thousandsSeparator: ',',
+                // ),
+
+                // Tables\Columns\TextColumn::make('remaining_weeks')
+                // ->label('Remaining Weeks/Months')
+                // ->color('danger')
+                // ->getStateUsing(function (Applicant $record) {
+                //     $or = $record->installment;
+                //     $term = $record->term;
+                //     $perweek = $record->installment;
+                //     $remaining = $term * $perweek;
+                //     if ($or == 4) {
+                //         return "{$remaining} weeks left";
+                //     } elseif ($or == 1) {
+                //         return "{$remaining} months left";
+                //     } else {
+                //         return "Error";
+                //     }
+                // }),
+                // Tables\Columns\TextColumn::make('payment_schedule')
+                // ->label('Payment Schedule')
+                // ->getStateUsing(function (Applicant $record) {
+                //     $startDate = Carbon::parse($record->start);
+                //     $installment = $record->installment; // Assuming you have an 'installment' property
+
+                //     $currentDate = Carbon::now();
+                //     $nextPaymentDate = $startDate->copy();
+
+                //     // Calculate the next payment date
+                //     while ($nextPaymentDate <= $currentDate) {
+                //         if ($installment == 4) {
+                //             // Weekly payment
+                //             $nextPaymentDate->addWeek();
+                //         } elseif ($installment == 1) {
+                //             // Monthly payment
+                //             $nextPaymentDate->addMonthNoOverflow(); // Add a month without overflowing into the next month
+                //         } else {
+                //             // Handle other cases if needed
+                //         }
+                //     }
+
+                //     return $nextPaymentDate->formatLocalized('%B %e %Y'); // Format the date as Full Month Day Year
+                // }),
+
+
+
+
+                // Infolists\Components\TextEntry::make('payment_status')
+                // ->label('Payment Status')
+                // ->getStateUsing(fn (Applicant $record) => implode(', ', self::calculatePaymentStatus1($record))),
+                // ->getStateUsing(fn (Applicant $record) => self::calculatePaymentScheduleAsSet($record)),
+                    // ->getStateUsing(fn (Applicant $record) => implode("\n", self::calculatePaymentSchedule1($record))),
+                    // Infolists\Components\TextEntry::make('payment_status')
+                    // ->getStateUsing(fn (Applicant $record) => implode("\n", self::calculatePaymentScheduleAsSet($record))),
+
+
+
+
+
+
+                // private static function calculatePaymentScheduleAsSet(Applicant $record): array
+// {
+//     // Assuming you have 'installment,' 'start,' and 'end' properties for loan term and dates
+//     $installment = $record->installment;
+//     $startDate = Carbon::parse($record->start)->startOfDay(); // Set time to midnight
+//     $endDate = Carbon::parse($record->end)->startOfDay(); // Set time to midnight
+//     $today = Carbon::now()->startOfDay(); // Set time to midnight
+//     $nextPaymentDate = $startDate;
+//     $paymentSchedule = ['past' => [], 'future' => []];
+
+//     while ($nextPaymentDate->lessThanOrEqualTo($endDate)) {
+//         $formattedDate = $nextPaymentDate->format('F j, Y');
+//         if ($nextPaymentDate->lessThan($today)) {
+//             $paymentSchedule['past'][] = $formattedDate; // Payment date is in the past
+//         } else {
+//             $paymentSchedule['future'][] = $formattedDate; // Payment date is in the future
+//         }
+
+//         if ($installment === '4') {
+//             $nextPaymentDate->addWeek();
+//         } elseif ($installment === '1') {
+//             $nextPaymentDate->addMonth();
+//         }
+//     }
+
+//     return $paymentSchedule;
+// }
+// private static function calculatePaymentStatuses1(Applicant $record): array
+// {
+//     $currentDate = Carbon::now();
+//     $paymentDates = self::calculatePaymentSchedule1($record); // Get an array of payment dates
+
+//     $billingRecords = $record->billing;
+
+//     // Check if there are billing records with transactions on the next payment date
+//     $paidOnScheduledDate = $billingRecords
+//         ->where('created_at', '>=', $paymentDates[0]) // Compare only the date part
+//         ->where('created_at', '<', $paymentDates[1]) // Compare only the date part
+//         ->isNotEmpty();
+
+//     // Check if there are billing records with transactions within the current month
+//     $paidWithinMonth = $billingRecords
+//         ->where('created_at', '>=', $currentDate->startOfMonth())
+//         ->isNotEmpty();
+
+//     $statuses = [];
+
+//     if ($currentDate->greaterThanOrEqualTo(Carbon::parse($paymentDates[0]))) {
+//         // Payment date has passed
+//         $statuses[] = "Missed";
+//     }
+
+//     if ($paidOnScheduledDate) {
+//         // Payment made on the scheduled date
+//         $statuses[] = "Paid on Scheduled Date";
+//     }
+
+//     if ($paidWithinMonth && !$paidOnScheduledDate) {
+//         // Payment made within the current month (excluding the scheduled date)
+//         $statuses[] = "Paid";
+//     }
+
+//     if (empty($statuses)) {
+//         // No payments made on the scheduled date or within the current month
+//         $statuses[] = "Pending";
+//     }
+
+//     return $statuses;
+// }
+
+
+
+
+
+
+
+
+
+
+                // ViewAction::make()
+                // ->color('primary')
+                // ->form([
+                //     Tabs::make('Label')
+                //         ->tabs([
+                //             Tabs\Tab::make('Loan Information')
+                //                 ->icon('heroicon-s-clipboard-document-list')
+                //                     ->schema([
+                //                         TextInput::make('customer_name')
+                //                             ->label('Customer name'),
+                //                         TextInput::make('bike_price')
+                //                             ->label('Total Contract'),
+                //                         TextInput::make('total_interest')
+                //                             ->label('Total interest'),
+                //                         TextInput::make('plus')
+                //                             ->label('Total amount'),
+                //                         TextInput::make('payment')
+                //                             ->label('Installment'),
+                //                         TextInput::make('remaining_balance')
+                //                             ->label('Remaining balance'),
+
+                //                         ]),
+                //                         Tabs\Tab::make('Payment History')
+                //                         ->icon('heroicon-s-currency-dollar')
+                // //                         ->schema([
+                // //                             Tabs\Tab::make('Payment History')
+                // //                             //
+                // // //                             ,
+                // // //                                 ]),
+                // //         ]),
+                // ]),
+                private static function calculatePaymentDescription(Applicant $record): string
+    {
+        $installment = $record->installment;
+        $startDate = Carbon::parse($record->start)->startOfDay();
+        $today = Carbon::now()->startOfDay(); // Start of the day for today
+
+        // Check if the end date has been reached
+        $nextPaymentDate = $startDate;
+
+        if ($installment === '4') {
+            while ($nextPaymentDate->lessThan($today)) {
+                $nextPaymentDate->addWeek();
+            }
+        } elseif ($installment === '1') {
+            while ($nextPaymentDate->lessThan($today)) {
+                $nextPaymentDate->addMonth();
+            }
+        }
+
+        // Compare the next payment date with today
+        if ($nextPaymentDate->isSameDay($today)) {
+            return "Today";
+        } elseif ($nextPaymentDate->isSameDay($today->copy()->addDay())) {
+            return "Tomorrow";
+        } else {
+            $remainingDays = $today->diffInDays($nextPaymentDate, false);
+            return "Due in " . $remainingDays . " days";
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    \\\\\\\\\\
+    Infolists\Components\TextEntry::make('payment_status')
+                    ->label('Payment Status')
+                    ->getStateUsing(function (Applicant $applicant) {
+                        $billingRecords = $applicant->billing->where('billing_status', 'remitted');
+                        $startDate = new DateTime($applicant->start);
+                        $endDate = new DateTime($applicant->end);
+                        $installmentFrequency = $applicant->installment;
+                        $currentDate = Carbon::now();
+                        $paymentSchedule = [];
+
+                        while ($startDate <= $endDate) {
+                            $paymentSchedule[] = $startDate->format('F j, Y');
+                            if ($installmentFrequency == 4) {
+                                $startDate->add(new DateInterval('P1W'));
+                            } elseif ($installmentFrequency == 1) {
+                                $startDate->add(new DateInterval('P1M'));
+                            }
+                        }
+
+                        $statuses = [];
+
+                        foreach ($paymentSchedule as $paymentDate) {
+                            $nextPaymentDate = Carbon::parse($paymentDate);
+
+                            $status = 'Pending';
+
+                            if ($currentDate->greaterThanOrEqualTo($nextPaymentDate)) {
+                                $status = 'Missed';
+                            } else {
+                                $paidOnScheduledDate = $billingRecords
+                                    ->where('created_at', '>=', $nextPaymentDate->startOfDay())
+                                    ->where('created_at', '<', $nextPaymentDate->endOfDay())
+                                    ->isNotEmpty();
+
+                                $paidWithinMonth = $billingRecords
+                                    ->where('created_at', '>=', $nextPaymentDate->startOfMonth())
+                                    ->isNotEmpty();
+
+                                if ($paidOnScheduledDate || $paidWithinMonth) {
+                                    if ($currentDate->lessThan($nextPaymentDate)) {
+                                        $status = 'Paid';
+                                    } else {
+                                        $status = 'Paid (Late)';
+                                    }
+                                }
+                            }
+
+                            // Store the status with the payment date as the key in the $statuses array.
+                            $statuses[$nextPaymentDate->format('F j, Y')] = $status;
+                        }
+
+                        // Return the $statuses array as a string, separated by line breaks.
+                        return implode("\n_____________________________________________________________\n", array_map(
+                            function ($date, $status) {
+                                return "$date: $status";
+                            },
+                            array_keys($statuses),
+                            $statuses
+                        ));
+                    }),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    public function updateDescription()
+    {
+        $billingRecords = $this->billing->where('billing_status', 'remitted');
+
+        $startDate = new DateTime($this->start);
+        $endDate = new DateTime($this->end);
+        $installmentFrequency = $this->installment;
+        $currentDate = Carbon::now();
+        $paymentSchedule = [];
+
+        while ($startDate <= $endDate) {
+            $paymentDate = $startDate->format('F j, Y');
+
+            $status = 'Pending';
+
+            if ($currentDate->greaterThanOrEqualTo($startDate)) {
+                $status = 'Missed';
+
+                // Check if a payment was made between the current payment date and the next one
+                $nextPaymentDate = clone $startDate;
+                if ($installmentFrequency == 4) {
+                    $nextPaymentDate->add(new DateInterval('P1W'));
+                } elseif ($installmentFrequency == 1) {
+                    $nextPaymentDate->add(new DateInterval('P1M'));
+                }
+
+                foreach ($billingRecords as $billingRecord) {
+                    $recordDate = Carbon::parse($billingRecord->created_at)->format('F j, Y');
+                    if ($recordDate >= $paymentDate && $recordDate < $nextPaymentDate->format('F j, Y')) {
+                        $status = 'Paid';
+                        break;
+                    }
+                }
+            }
+
+            $paymentSchedule[] = [
+                'date' => $paymentDate,
+                'status' => $status,
+            ];
+
+            if ($installmentFrequency == 4) {
+                $startDate->add(new DateInterval('P1W'));
+            } elseif ($installmentFrequency == 1) {
+                $startDate->add(new DateInterval('P1M'));
+            }
+        }
+
+        // Serialize the payment schedule array to JSON
+        $paymentScheduleJson = json_encode($paymentSchedule);
+
+        // Update the 'repossession' field in the database with the JSON data
+        $this->update([
+            'repossession' => $paymentScheduleJson,
+        ]);
+
+        $description = $this->calculatePaymentDescription($this);
+        $this->update([
+            'payment_description' => $description,
+        ]);
+        return $description;
+  }
