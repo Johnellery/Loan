@@ -28,12 +28,12 @@ class DatabaseSeeder extends Seeder
 
         //ROLE
 
-        // foreach ([ 'billing','billing1','billing2', 'billing3', 'billing4', 'billing5', 'billing6','billing7','billing8', 'billing9', 'billing10', 'billing11', 'billing12',
-        // 'billing13','billing14','billing15', 'billing16', 'billing17','billing18','billing19', 'billing20', 'billing21', 'billing22', 'billing23','billing24','billing25', 'billing26', 'billing27', 'billing28', 'billing29'
-        // , 'billing30', 'billing31','billing32','billing33','billing34','billing35','billing36','billing37','billing38', 'billing39','billing40','billing41','billing42',
-        // 'billing43','billing44','billing45','billing46','billing47',] as $billing) {
-        //     Billing::factory()->$billing()->create();
-        // }
+        foreach ([ 'billing','billing1','billing2', 'billing3', 'billing4', 'billing5', 'billing6','billing7','billing8', 'billing9', 'billing10', 'billing11', 'billing12',
+        'billing13','billing14','billing15', 'billing16', 'billing17','billing18','billing19', 'billing20', 'billing21', 'billing22', 'billing23','billing24','billing25', 'billing26', 'billing27', 'billing28', 'billing29'
+        , 'billing30', 'billing31','billing32','billing33','billing34','billing35','billing36','billing37','billing38', 'billing39','billing40','billing41','billing42',
+        'billing43','billing44','billing45','billing46','billing47',] as $billing) {
+            Billing::factory()->$billing()->create();
+        }
         // Billing::factory()->count(50)->create();
         //BRANCH
         Branch::factory()->create();
