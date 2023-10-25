@@ -72,6 +72,9 @@ class CustomerPanelProvider extends PanelProvider
                 // FilamentLanguageSwitchPlugin::make(),
                 BreezyCore::make()
                 ->avatarUploadComponent(fn() => FileUpload::make('avatar_url')->disk('public'))
+                ->enableTwoFactorAuthentication(
+                    force: false,
+                )
                 ->myProfile(
 
                     shouldRegisterUserMenu: true, // Sets the 'account' link in the panel User Menu (default = true)

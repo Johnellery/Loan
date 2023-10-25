@@ -137,7 +137,8 @@ class RateResource extends Resource
                         return $user->role->name === 'Admin' ;
                     })
                     ->icon('heroicon-o-archive-box-arrow-down'),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                ->color('warning'),
                 ])            ->button()
                 ->color('warning')
                 ->label('Actions')

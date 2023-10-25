@@ -66,22 +66,24 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 QuickCreatePlugin::make()
                 ->excludes([
-                    RickDBCN\FilamentEmail\Filament\Resources\EmailResource::class,
+                    // RickDBCN\FilamentEmail\Filament\Resources\EmailResource::class,
                 ]),
                 new \RickDBCN\FilamentEmail\FilamentEmail(),
                 // FilamentLanguageSwitchPlugin::make(),
                 BreezyCore::make()
                 ->avatarUploadComponent(fn() => FileUpload::make('avatar_url')->disk('public'))
+                ->enableTwoFactorAuthentication(
+                    force: false,
+                )
                 ->myProfile(
-
-                    shouldRegisterUserMenu: true, // Sets the 'account' link in the panel User Menu (default = true)
-                    shouldRegisterNavigation: false, // Adds a main navigation item for the My Profile page (default = false)
-                    hasAvatars: true, // Enables the avatar upload form component (default = false)
-                    slug: 'my-profile' // Sets the slug for the profile page (default = 'my-profile')
+                    shouldRegisterUserMenu: true,
+                    shouldRegisterNavigation: false,
+                    hasAvatars: true,
+                    slug: 'my-profile'
                 )
                 ->passwordUpdateRules(
-                    rules: [Password::default()->mixedCase()->uncompromised(3)], // you may pass an array of validation rules as well. (default = ['min:8'])
-                    requiresCurrentPassword: true, // when false, the user can update their password without entering their current password. (default = true)
+                    rules: [Password::default()->mixedCase()->uncompromised(3)],
+                    requiresCurrentPassword: true,
                     )
             ])
             ->authMiddleware([

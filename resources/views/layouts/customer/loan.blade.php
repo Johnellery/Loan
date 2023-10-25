@@ -4,20 +4,8 @@ use App\Models\Philprovince;
 use App\Models\Philmuni;
 use App\Models\Philbrgy;
 $philprovinces = Philprovince::all();
-
-// Assuming you want to work with the first Philprovince model in the collection
-if ($philprovinces->isNotEmpty()) {
-    $firstProvince = $philprovinces->first();
-    $provCode = $firstProvince->provCode;
-
-    $philcities = Philmuni::where('provCode', $provCode)->get();
-    $philbarangays = Philbrgy::where('provCode', $provCode)->get();
-
-    // Now you can work with $philcities and $philbarangays
-} else {
-    // Handle the case where $philprovinces is empty
-    // For example, you may want to provide a default value for $provCode
-}
+$philcities = Philmuni::all();
+$philbarangays = Philbrgy::all();
 
 ?>
 <!DOCTYPE html>

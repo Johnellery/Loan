@@ -16,7 +16,7 @@ class BikeOverview extends BaseWidget
         $availableBikeCount = Bike::where('is_available', 'available')->count();
         $outOfStockBikeCount = Bike::where('is_available', 'unavailable')->count();
         return [
-            Stat::make('Total Approved Bikes', $approvedBikeCount)
+        Stat::make('Total Approved Bikes', $approvedBikeCount)
             ->description('Number of bikes with an approved status')
             ->color('success'),
 

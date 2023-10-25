@@ -485,8 +485,6 @@ class ApplicantResource extends Resource
                 ->icon('heroicon-o-clipboard-document-check'),
                 Tables\Actions\Action::make('Approve')
                 ->action(function (Applicant $record, $data) {
-                    $selectedDate = $data['ci_sched'];
-                    $formattedDate = \Carbon\Carbon::parse($selectedDate)->toDateString();
                     $term = $record->term;
                     $startDate = now();
                     $endDate = $startDate->copy()->addMonths($term);

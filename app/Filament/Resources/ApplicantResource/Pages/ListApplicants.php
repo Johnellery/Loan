@@ -22,4 +22,10 @@ class ListApplicants extends ListRecords
             ->label('Add new Loan applicant'),
         ];
     }
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ApplicantResource\Widgets\ApplicantOverview::class,
+        ];
+    }
 }

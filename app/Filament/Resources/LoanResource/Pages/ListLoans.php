@@ -16,4 +16,10 @@ class ListLoans extends ListRecords
         return [
         ];
     }
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            LoanResource\Widgets\LoanOverview::class,
+        ];
+    }
 }

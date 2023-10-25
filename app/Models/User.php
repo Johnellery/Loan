@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
+use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +25,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     use HasProfilePhoto;
     use Notifiable;
     use SoftDeletes;
+    use TwoFactorAuthenticatable;
 
 
     /**

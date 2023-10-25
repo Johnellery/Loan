@@ -30,9 +30,9 @@ class CategoryResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('New Category')
-                    ->description('Please provide the missing information to create a new Category.')
-                    ->icon('heroicon-s-clipboard-document-list')
+                Forms\Components\Section::make('')
+                    // ->description('Please provide the missing information to create a new Category.')
+                    // ->icon('heroicon-s-clipboard-document-list')
                 ->schema([
                 Forms\Components\TextInput::make('name')
                     ->minLength(2)
