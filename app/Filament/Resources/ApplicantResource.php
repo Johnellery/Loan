@@ -402,6 +402,7 @@ class ApplicantResource extends Resource
                     'danger' => 'Rejected',
                     'warning' => 'Pending'
                 ]),
+
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
@@ -452,14 +453,10 @@ class ApplicantResource extends Resource
 
                     $interest = $principal * $decimal_rate;
                     $plus = $principal + $computed_interest;
-
                     $afterdownpayment = $plus - $down;
                     $payment = ($afterdownpayment / $term) / $perweek;
-
                     $full_name = $record->first . ' ' . $record->middle . ' ' . $record->last;
-                    $term = $record->term;
                     $startDate = now();
-
                     $endDate = $startDate->copy()->addMonths($term);
                     $record->update(['status' => 'approved',
                                     'total_interest' => $interest,
@@ -472,6 +469,8 @@ class ApplicantResource extends Resource
                                     'start' => $startDate,
                                     'end' => $endDate,
                                     'ci_sched' => $formattedDate,
+                                    // 'week11' => $week11,
+                                    // 'month1' => $month1,
                                     ]);
 
                 })
@@ -487,10 +486,72 @@ class ApplicantResource extends Resource
                 ->action(function (Applicant $record, $data) {
                     $term = $record->term;
                     $startDate = now();
+
+                    $week11 = now()->addweeks(1);
+                    $week12 = now()->addweeks(2);
+                    $week13 = now()->addweeks(3);
+                    $week14 = now()->addweeks(4);
+                    $week21 = now()->addweeks(5);
+                    $week22 = now()->addweeks(6);
+                    $week23 = now()->addweeks(7);
+                    $week24 = now()->addweeks(8);
+                    $week31 = now()->addweeks(9);
+                    $week32 = now()->addweeks(10);
+                    $week33 = now()->addweeks(11);
+                    $week34 = now()->addweeks(12);
+                    $week41 = now()->addweeks(13);
+                    $week42 = now()->addweeks(14);
+                    $week43 = now()->addweeks(15);
+                    $week44 = now()->addweeks(16);
+                    $week51 = now()->addweeks(17);
+                    $week52 = now()->addweeks(18);
+                    $week53 = now()->addweeks(19);
+                    $week54 = now()->addweeks(20);
+                    $week61 = now()->addweeks(21);
+                    $week62 = now()->addweeks(22);
+                    $week63 = now()->addweeks(23);
+                    $week64 = now()->addweeks(24);
+                    $month1 = now()->addmonths(1);
+                    $month2 = now()->addmonths(2);
+                    $month3 = now()->addmonths(3);
+                    $month4 = now()->addmonths(4);
+                    $month5 = now()->addmonths(5);
+                    $month6 = now()->addmonths(6);
                     $endDate = $startDate->copy()->addMonths($term);
                     $record->update(['ci_status' => 'approved',
                                         'start' => $startDate,
-                                        'end' => $endDate,]);
+                                        'end' => $endDate,
+                                        'week11' => $week11,
+                                        'week12' => $week12,
+                                        'week13' => $week13,
+                                        'week14' => $week14,
+                                        'week21' => $week21,
+                                        'week22' => $week22,
+                                        'week23' => $week23,
+                                        'week24' => $week24,
+                                        'week31' => $week31,
+                                        'week32' => $week32,
+                                        'week33' => $week33,
+                                        'week34' => $week34,
+                                        'week41' => $week41,
+                                        'week42' => $week42,
+                                        'week43' => $week43,
+                                        'week44' => $week44,
+                                        'week51' => $week51,
+                                        'week52' => $week52,
+                                        'week53' => $week53,
+                                        'week54' => $week54,
+                                        'week61' => $week61,
+                                        'week62' => $week62,
+                                        'week63' => $week63,
+                                        'week64' => $week64,
+                                        'month1' => $month1,
+                                        'month2' => $month2,
+                                        'month3' => $month3,
+                                        'month4' => $month4,
+                                        'month5' => $month5,
+                                        'month6' => $month6,
+                                    ]);
                 })
                 ->visible(function () {
                     $user = Auth::user();

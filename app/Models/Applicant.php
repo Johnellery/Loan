@@ -57,6 +57,36 @@ class Applicant extends Model
     'is_computed',
     'repossession',
     'ci_sched',
+    'week11',
+    'week12',
+    'week13',
+    'week14',
+    'week21',
+    'week22',
+    'week23',
+    'week24',
+    'week31',
+    'week32',
+    'week33',
+    'week34',
+    'week41',
+    'week42',
+    'week43',
+    'week44',
+    'week51',
+    'week52',
+    'week53',
+    'week54',
+    'week61',
+    'week62',
+    'week63',
+    'week64',
+    'month1',
+    'month2',
+    'month3',
+    'month4',
+    'month5',
+    'month6',
 ];
 
     public function branch()
@@ -122,40 +152,33 @@ class Applicant extends Model
 }
 
 
-    private static function calculateCurrentPaymentSchedule(Applicant $record, $decrement = true): string
-    {
-        $installment = $record->installment;
-        $startDate = Carbon::parse($record->start)->startOfDay();
-        $endDate = Carbon::parse($record->end)->startOfDay();
-        $today = Carbon::now()->startOfDay();
-        $currentPaymentDate = $startDate;
+private static function calculatePaymentSchedule(Applicant $record): string
+{
+    $installment = $record->installment;
+    $startDate = Carbon::parse($record->start)->startOfDay();
+    $endDate = Carbon::parse($record->end)->startOfDay();
+    $today = Carbon::now()->startOfDay();
+    $nextPaymentDate = $startDate;
 
-        if ($installment === '4') {
-            while ($currentPaymentDate->isBefore($today)) {
-                $currentPaymentDate->addWeek();
-            }
-        } elseif ($installment === '1') {
-            while ($currentPaymentDate->isBefore($today)) {
-                $currentPaymentDate->addMonth();
-            }
+    $nextPaymentDate = $startDate;
+
+    if ($installment === '4') {
+        while ($nextPaymentDate->isBefore($today)) {
+            $nextPaymentDate->addWeeks(1);
         }
-
-        // Optionally decrement by one week or one month
-        if ($decrement) {
-            if ($installment === '4') {
-                $currentPaymentDate->subWeek();
-            } elseif ($installment === '1') {
-                $currentPaymentDate->subMonth();
-            }
+    } elseif ($installment === '1') {
+        while ($nextPaymentDate->isBefore($today)) {
+            $nextPaymentDate->addMonths(1);
         }
-
-        return $currentPaymentDate->format('F j, Y');
     }
+    return $nextPaymentDate->format('F j, Y');
+
+}
 
     private static function calculatePaymentStatus(Applicant $record): string
     {
         $currentDate = Carbon::now();
-        $nextPaymentDate = Carbon::parse(self::calculateCurrentPaymentSchedule($record));
+        $nextPaymentDate = Carbon::parse(self::calculatePaymentSchedule($record));
 
         $billingRecords = $record->billing->where('billing_status', 'remitted');
 
@@ -171,7 +194,7 @@ class Applicant extends Model
             return "Paid";
         } elseif ($paidWithinMonth) {
             return "Paid";
-        } elseif ($currentDate->lessThanOrEqualTo($nextPaymentDate)) {
+        } elseif ($nextPaymentDate->lessThanOrEqualTo($currentDate)) {
             return "Missed";
         } else {
             return "Pending";
@@ -205,7 +228,6 @@ class Applicant extends Model
         $ispaid = $this->calculatePaymentStatus($this);
         $this->update([
             'is_paid' => $ispaid,
-
         ]);
         return $ispaid;
     }
@@ -256,10 +278,8 @@ class Applicant extends Model
             }
         }
 
-        // Serialize the payment schedule array to JSON
         $paymentScheduleJson = json_encode($paymentSchedule);
 
-        // Update the 'repossession' field in the database with the JSON data
         $this->update([
             'repossession' => $paymentScheduleJson,
         ]);

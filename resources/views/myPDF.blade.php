@@ -92,14 +92,14 @@
             <th>Date</th>
             <th>OR/JR</th>
             <th>Total Payment</th>
-            {{-- <th>L/R Balance</th> --}}
+            <th>L/R Balance</th>
         </tr>
         @foreach ($loan->billing as $billingRecord)
         <tr>
             <td>{{ $billingRecord->created_at }}</td>
             <td>{{ $billingRecord->transaction_number }}</td>
             <td>{{ $billingRecord->amount }}</td>
-            {{-- <td>{{ $billingRecord->amountpdf }}</td> --}}
+            <td>{{ $billingRecord->amountpdf }}</td>
         </tr>
         @endforeach
     </table>

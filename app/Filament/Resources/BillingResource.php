@@ -103,7 +103,7 @@ class BillingResource extends Resource
                             ];
 
                             // Check if today is between one month after and two months after the created date
-                            if ($currentDate->lessThanOrEqualTo($oneMonthAfter)) {
+                            if ($currentDate->greaterThanOrEqualTo($oneMonthAfter)) {
                                 $options['1st_month_paid'] = 'Early repayment';
                             } elseif ($oneMonthAfter->lessThanOrEqualTo($twoMonthsAfter)) {
                                 $options['2nd_month_paid'] = 'Early loan termination fee';
