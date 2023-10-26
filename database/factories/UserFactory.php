@@ -22,7 +22,7 @@ class UserFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
+            'email' => $this->faker->unique()->userName() . '@gmail.com',
             'email_verified_at' => now(),
             'role_id' => '4',
             'branch_id' => '2',

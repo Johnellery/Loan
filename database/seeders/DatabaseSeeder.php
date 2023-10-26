@@ -123,7 +123,12 @@ class DatabaseSeeder extends Seeder
         //APPLICANT
 
     $applicantStates = [ 'Applicant','Applicant2','Applicant3','Applicant4','Applicant5','Applicant6','Applicant7','Applicant8','Applicant9','Applicant10',
-    'Applicant11','Applicant12','Applicant13','Applicant14',];
+    'Applicant11','Applicant12','Applicant13','Applicant14',
+
+    'Applicant15','Applicant16','Applicant17','Applicant18','Applicant19','Applicant20','Applicant21','Applicant22','Applicant23','Applicant24',
+    'Applicant25','Applicant26','Applicant27','Applicant28',
+    'Applicant29','Applicant30','Applicant31','Applicant32','Applicant33','Applicant34','Applicant35','Applicant36','Applicant37','Applicant38',
+    'Applicant39','Applicant40','Applicant41',];
         foreach ($applicantStates as $applicantState) {
             Applicant::factory()->$applicantState()->create();
                 }

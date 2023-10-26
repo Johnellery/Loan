@@ -194,7 +194,7 @@ private static function calculatePaymentSchedule(Applicant $record): string
             return "Paid";
         } elseif ($paidWithinMonth) {
             return "Paid";
-        } elseif ($nextPaymentDate->lessThanOrEqualTo($currentDate)) {
+        } elseif ($nextPaymentDate->lessThan($currentDate)) {
             return "Missed";
         } else {
             return "Pending";
