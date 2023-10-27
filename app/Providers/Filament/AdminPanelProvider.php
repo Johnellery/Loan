@@ -63,6 +63,7 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            // ->authGuard('user')
             ->plugins([
                 QuickCreatePlugin::make()
                 ->excludes([

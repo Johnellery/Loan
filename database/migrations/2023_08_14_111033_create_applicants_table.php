@@ -58,6 +58,7 @@ return new class () extends Migration {
             $table->string('remaining_balance')->nullable();
             $table->string('remaining_weeks')->nullable();
             $table->string('status')->default('pending');
+            $table->string('is_status')->default('active');
             $table->string('ci_status')->default('pending');
             $table->string('is_paid')->nullable();
             $table->string('payment_description')->nullable();

@@ -20,12 +20,7 @@ use Filament\Panel;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
-    use HasApiTokens;
-    use HasFactory;
-    use HasProfilePhoto;
-    use Notifiable;
-    use SoftDeletes;
-    use TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
 
     /**

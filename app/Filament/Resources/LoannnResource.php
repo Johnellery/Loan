@@ -116,7 +116,7 @@ class LoannnResource extends Resource
                     ->url(fn (Applicant $record) => route('payment', $record))
                     ->openUrlInNewTab(),
                 Tables\Actions\ViewAction::make()
-                ->slideOver()
+                // ->slideOver()
                 ->color('primary'),
                 ])
                 ->button()

@@ -163,17 +163,20 @@ class LoanResource extends Resource
         if ($user->role->name === 'Admin') {
             return $query->where('status', 'approved')
                          ->where('remaining_balance', '>', 0)
+                         ->where('is_status', 'active')
                          ->where('ci_status', 'approved');
         } elseif ($user->role->name === 'Staff' || $user->role->name === 'Collector') {
             return $query->where('branch_id', $user->branch_id)
                          ->where('remaining_balance', '>', 0)
                          ->where('ci_status', 'approved')
+                         ->where('is_status', 'active')
                          ->where(function ($query) {
                              $query->where('status', 'approved');
                          });
         } elseif ($user->role->name === 'Customer' ) {
             return $query->where('user_id', $user->id)
                          ->where('remaining_balance', '>', 0)
+                         ->where('is_status', 'active')
                          ->where('ci_status', 'approved')
                          ->where(function ($query) {
                              $query->where('status', 'approved');

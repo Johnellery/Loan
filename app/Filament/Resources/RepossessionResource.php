@@ -84,6 +84,25 @@ class RepossessionResource extends Resource
                 ->getStateUsing(function (Applicant $record) {
                     return $record->updateRemainingBalance();
                 }),
+                Tables\Columns\TextColumn::make('is_status')
+                ->badge()
+                ->getStateUsing(function (Applicant $record): string {
+                    if ($record->isRepossessing()) {
+                        return 'Repossessing';
+                    } elseif ($record->isFailed()) {
+                        return 'Repossessing Failed';
+                    } elseif ($record->isSuccess()) {
+                        return 'Repossessing Success';
+                    } else {
+                        return 'Active Loan';
+                    }
+                })
+                ->colors([
+                    'success' => 'Active Loan',
+                    'warning' => 'Repossessing' ,
+                    'danger' => 'Repossessing Failed',
+                    'primary' => 'Repossessing Success',
+                ]),
             ])
             ->filters([
                 //
@@ -91,15 +110,35 @@ class RepossessionResource extends Resource
             ->actions([
                 // Tables\Actions\EditAction::make(),
                 ActionGroup::make([
+                    Tables\Actions\Action::make('Repossession Success')
+                    ->label('Repossession Success')
+                    ->action(function (Applicant $record) {
+                        $record->update(['is_status' => 'success']);
+                    })
+                    ->requiresConfirmation()
+                    ->hidden(fn (Applicant $record): bool => $record->is_status === 'active' || $record->is_status === 'failed' || $record->is_status === 'success')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle'),
+                Tables\Actions\Action::make('Repossession Failed')
+                ->label('Repossession Failed')
+                    ->action(function (Applicant $record) {
+                        $record->update(['is_status' => 'failed']);
+                    })
+                    ->requiresConfirmation()
+                    ->hidden(fn (Applicant $record): bool => $record->is_status === 'success' || $record->is_status === 'active' || $record->is_status === 'failed')
+                    ->color('warning')
+                    ->icon('heroicon-o-exclamation-circle'),
                     Tables\Actions\Action::make('Repossession notice')
                     ->icon('heroicon-o-chat-bubble-bottom-center-text')
                     ->requiresConfirmation()
+                    ->hidden(fn (Applicant $record): bool => $record->is_status === 'failed' || $record->is_status === 'success')
                     ->url(fn (Applicant $record) => route('repossession1.index', $record))
                     ->successNotificationTitle('Repossession notice send successfully')
                     ->color('danger'),
                     Tables\Actions\Action::make('Send Notice')
                     ->icon('heroicon-o-clipboard-document-list')
                     ->requiresConfirmation()
+                    ->hidden(fn (Applicant $record): bool => $record->is_status === 'failed' || $record->is_status === 'success' || $record->is_status === 'repossessing')
                     ->url(fn (Applicant $record) => route('repossession.index', $record))
                     ->successNotification(
                         Notification::make()

@@ -87,6 +87,7 @@ class Applicant extends Model
     'month4',
     'month5',
     'month6',
+    'is_status',
 ];
 
     public function branch()
@@ -121,6 +122,18 @@ class Applicant extends Model
     public function isCIRejected()
     {
         return $this->ci_status === 'rejected' || $this->ci_status === 'reject';
+    }
+    public function isSuccess()
+    {
+        return $this->is_status === 'success';
+    }
+    public function isFailed()
+    {
+        return $this->is_status === 'failed';
+    }
+    public function isRepossessing()
+    {
+        return $this->is_status === 'repossessing';
     }
 
     /// FUNCTIONALITY
