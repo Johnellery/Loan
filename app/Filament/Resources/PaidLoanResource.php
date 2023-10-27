@@ -185,6 +185,50 @@ class PaidLoanResource extends Resource
                     ])
                 ])
                     ]),
+                    Infolists\Components\Fieldset::make('Loan Information')
+                    ->schema([
+                    Infolists\Components\Section::make()->schema([
+                        Infolists\Components\Grid::make(3)->schema([
+                            Infolists\Components\TextEntry::make('customer_name')
+                            ->label('Customer name'),
+                            Infolists\Components\TextEntry::make('bike_price')
+                            ->label('Total Contract')
+                            ->numeric(
+                                decimalPlaces: 2,
+                                decimalSeparator: '.',
+                                thousandsSeparator: ',',
+                            ),
+                            Infolists\Components\TextEntry::make('total_interest')
+                            ->label('Total interest')
+                            ->numeric(
+                                decimalPlaces: 2,
+                                decimalSeparator: '.',
+                                thousandsSeparator: ',',
+                            ),
+                            Infolists\Components\TextEntry::make('plus')
+                            ->label('Total amount')
+                            ->numeric(
+                                decimalPlaces: 2,
+                                decimalSeparator: '.',
+                                thousandsSeparator: ',',
+                            ),
+                            Infolists\Components\TextEntry::make('payment')
+                            ->label('Installment')
+                            ->numeric(
+                                decimalPlaces: 2,
+                                decimalSeparator: '.',
+                                thousandsSeparator: ',',
+                            ),
+                            Infolists\Components\TextEntry::make('remaining_balance')
+                            ->label('Remaining balance')
+                            ->numeric(
+                                decimalPlaces: 2,
+                                decimalSeparator: '.',
+                                thousandsSeparator: ',',
+                            ),
+                        ])
+                    ])
+                        ]),
             Infolists\Components\Fieldset::make('Address')
             ->schema([
             Infolists\Components\Section::make()->schema([

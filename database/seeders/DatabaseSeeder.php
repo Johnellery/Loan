@@ -28,13 +28,14 @@ class DatabaseSeeder extends Seeder
 
         //ROLE
 
-        foreach ([ 'billing','billing1','billing2', 'billing3', 'billing4', 'billing5', 'billing6','billing7','billing8', 'billing9', 'billing10', 'billing11', 'billing12',
-        'billing13','billing14','billing15', 'billing16', 'billing17','billing18','billing19', 'billing20', 'billing21', 'billing22', 'billing23','billing24','billing25', 'billing26', 'billing27', 'billing28', 'billing29'
-        , 'billing30', 'billing31','billing32','billing33','billing34','billing35','billing36','billing37','billing38', 'billing39','billing40','billing41','billing42',
-        'billing43','billing44','billing45','billing46','billing47','billing45', 'billing46', 'billing47', 'billing48', 'billing49', 'billing50', 'billing51', 'billing52', 'billing53', 'billing54', 'billing55', 'billing56', 'billing57', 'billing58', 'billing59', 'billing60', 'billing61', 'billing62', 'billing63', 'billing64', 'billing65', 'billing66', 'billing67', 'billing68', 'billing69', 'billing70', 'billing71', 'billing72', 'billing73', 'billing74', 'billing75', 'billing76',
-        'billing77', 'billing78', 'billing79', 'billing80', 'billing81', 'billing82', 'billing81', 'billing82', 'billing83', 'billing84', 'billing85', 'billing86', 'billing87', 'billing88', 'billing89', 'billing90', 'billing91', 'billing92', 'billing93', 'billing94', 'billing95', 'billing96', 'billing97', 'billing98', 'billing99', 'billing100', 'billing101', 'billing102', 'billing103', 'billing104', 'billing105', 'billing106', 'billing107', 'billing108', 'billing109', 'billing110'] as $billing) {
+        foreach ([ 'billing'] as $billing) {
             Billing::factory()->$billing()->create();
         }
+        foreach (range(1, 130) as $billingNumber) {
+            $billing = 'billing' . $billingNumber;
+            Billing::factory()->$billing()->create();
+        }
+
         // Billing::factory()->count(50)->create();
         //BRANCH
         Branch::factory()->create();

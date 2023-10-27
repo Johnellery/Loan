@@ -173,46 +173,49 @@ private static function calculatePaymentSchedule(Applicant $record): string
     $today = Carbon::now()->startOfDay();
     $nextPaymentDate = $startDate;
 
-    $nextPaymentDate = $startDate;
-
     if ($installment === '4') {
-        while ($nextPaymentDate->isBefore($today)) {
-            $nextPaymentDate->addWeeks(1);
+        while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+            $nextPaymentDate->addWeek();
         }
     } elseif ($installment === '1') {
-        while ($nextPaymentDate->isBefore($today)) {
-            $nextPaymentDate->addMonths(1);
+        while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+            $nextPaymentDate->addMonth();
         }
     }
-    return $nextPaymentDate->format('F j, Y');
 
+    // Check if nextPaymentDate has exceeded the end date
+    if ($nextPaymentDate->isAfter($endDate)) {
+        return $endDate->format('F j, Y'); // Return the end date
+    }
+
+    return $nextPaymentDate->format('F j, Y');
 }
 
-    private static function calculatePaymentStatus(Applicant $record): string
-    {
-        $currentDate = Carbon::now();
-        $nextPaymentDate = Carbon::parse(self::calculatePaymentSchedule($record));
+private static function calculatePaymentStatus(Applicant $record): string
+{
+    $currentDate = Carbon::now();
+    $nextPaymentDate = Carbon::parse(self::calculatePaymentSchedule($record));
+    $billingRecords = $record->billing->where('billing_status', 'remitted');
 
-        $billingRecords = $record->billing->where('billing_status', 'remitted');
+    $paidOnScheduledDate = $billingRecords
+        ->where('created_at', '>=', $nextPaymentDate)
+        ->where('created_at', '<', $nextPaymentDate)
+        ->isNotEmpty();
+    $paidWithinMonth = $billingRecords
+        ->where('created_at', '>=', $currentDate)
+        ->isNotEmpty();
 
-        $paidOnScheduledDate = $billingRecords
-            ->where('created_at', '>=', $nextPaymentDate->startOfDay())
-            ->where('created_at', '<', $nextPaymentDate->endOfDay())
-            ->isNotEmpty();
-        $paidWithinMonth = $billingRecords
-            ->where('created_at', '>=', $currentDate->startOfMonth())
-            ->isNotEmpty();
-
-       if ($paidOnScheduledDate) {
-            return "Paid";
-        } elseif ($paidWithinMonth) {
-            return "Paid";
-        } elseif ($nextPaymentDate->lessThan($currentDate)) {
-            return "Missed";
-        } else {
-            return "Pending";
-        }
+    if ($paidOnScheduledDate) {
+        return "Paid";
+    } elseif ($paidWithinMonth) {
+        return "Paid";
+    } elseif ($currentDate->greaterThan($nextPaymentDate)) {
+        return "Missed";
+    } else {
+        return "Pending";
     }
+}
+
 
     ///FUNCTIONALITY
 

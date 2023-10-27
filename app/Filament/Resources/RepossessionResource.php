@@ -191,10 +191,12 @@ class RepossessionResource extends Resource
     if ($user->role->name === 'Admin') {
         return $query->where('status', 'approved')
                      ->where('ci_status', 'approved')
+                     ->where('remaining_balance', '>', 0)
                      ->where('repossession', 'LIKE', '%"status":"Missed"%');
     } elseif ($user->role->name === 'Staff' || $user->role->name === 'Collector') {
         return $query->where('branch_id', $user->branch_id)
                      ->where('ci_status', 'approved')
+                     ->where('remaining_balance', '>', 0)
                      ->where(function ($query) {
                          $query->where('status', 'approved');
                      })
@@ -210,7 +212,7 @@ public static function infolist(Infolist $infolist): Infolist
 {
     return $infolist
         ->schema([
-            Infolists\Components\Fieldset::make('Customer Loan Information')
+            Infolists\Components\Fieldset::make('Personal Information')
             ->schema([
             Infolists\Components\Section::make()->schema([
                 Infolists\Components\Grid::make(3)->schema([
@@ -245,6 +247,50 @@ public static function infolist(Infolist $infolist): Infolist
                 ])
             ])
                 ]),
+                Infolists\Components\Fieldset::make('Loan Information')
+                ->schema([
+                Infolists\Components\Section::make()->schema([
+                    Infolists\Components\Grid::make(3)->schema([
+                        Infolists\Components\TextEntry::make('customer_name')
+                        ->label('Customer name'),
+                        Infolists\Components\TextEntry::make('bike_price')
+                        ->label('Total Contract')
+                        ->numeric(
+                            decimalPlaces: 2,
+                            decimalSeparator: '.',
+                            thousandsSeparator: ',',
+                        ),
+                        Infolists\Components\TextEntry::make('total_interest')
+                        ->label('Total interest')
+                        ->numeric(
+                            decimalPlaces: 2,
+                            decimalSeparator: '.',
+                            thousandsSeparator: ',',
+                        ),
+                        Infolists\Components\TextEntry::make('plus')
+                        ->label('Total amount')
+                        ->numeric(
+                            decimalPlaces: 2,
+                            decimalSeparator: '.',
+                            thousandsSeparator: ',',
+                        ),
+                        Infolists\Components\TextEntry::make('payment')
+                        ->label('Installment')
+                        ->numeric(
+                            decimalPlaces: 2,
+                            decimalSeparator: '.',
+                            thousandsSeparator: ',',
+                        ),
+                        Infolists\Components\TextEntry::make('remaining_balance')
+                        ->label('Remaining balance')
+                        ->numeric(
+                            decimalPlaces: 2,
+                            decimalSeparator: '.',
+                            thousandsSeparator: ',',
+                        ),
+                    ])
+                ])
+                    ]),
         Infolists\Components\Fieldset::make('Address')
         ->schema([
         Infolists\Components\Section::make()->schema([

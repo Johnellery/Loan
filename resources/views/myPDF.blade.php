@@ -83,7 +83,7 @@
         </tr>
         <tr>
             <td class="label">Due as of {{ $date }}:</td>
-            <td class="value">-{{ number_format($loan->remaining_balance, 2) }}</td>
+            <td class="value">{{ number_format($loan->remaining_balance, 2) }}</td>
         </tr>
     </table>
 
@@ -96,7 +96,7 @@
         </tr>
         @foreach ($loan->billing as $billingRecord)
         <tr>
-            <td>{{ $billingRecord->created_at }}</td>
+            <td>{{ date('F d, Y', strtotime($billingRecord->created_at)) }}</td>
             <td>{{ $billingRecord->transaction_number }}</td>
             <td>{{ $billingRecord->amount }}</td>
             {{-- <td>{{ $billingRecord->amountpdf }}</td> --}}

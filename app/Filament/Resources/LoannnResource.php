@@ -157,46 +157,24 @@ class LoannnResource extends Resource
         $nextPaymentDate = $startDate;
 
         if ($installment === '4') {
-            while ($nextPaymentDate->isBefore($today)) {
+            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
                 $nextPaymentDate->addWeek();
             }
         } elseif ($installment === '1') {
-            while ($nextPaymentDate->isBefore($today)) {
+            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
                 $nextPaymentDate->addMonth();
             }
         }
+
+        // Check if nextPaymentDate has exceeded the end date
+        if ($nextPaymentDate->isAfter($endDate)) {
+            return $endDate->format('F j, Y'); // Return the end date
+        }
+
         return $nextPaymentDate->format('F j, Y');
     }
 
-    private static function calculateCurrentPaymentSchedule(Applicant $record, $decrement = true): string
-    {
-        $installment = $record->installment;
-        $startDate = Carbon::parse($record->start)->startOfDay();
-        $endDate = Carbon::parse($record->end)->startOfDay();
-        $today = Carbon::now()->startOfDay();
-        $currentPaymentDate = $startDate;
 
-        if ($installment === '4') {
-            while ($currentPaymentDate->isBefore($today)) {
-                $currentPaymentDate->addWeek();
-            }
-        } elseif ($installment === '1') {
-            while ($currentPaymentDate->isBefore($today)) {
-                $currentPaymentDate->addMonth();
-            }
-        }
-
-        // Optionally decrement by one week or one month
-        if ($decrement) {
-            if ($installment === '4') {
-                $currentPaymentDate->subWeek();
-            } elseif ($installment === '1') {
-                $currentPaymentDate->subMonth();
-            }
-        }
-
-        return $currentPaymentDate->format('F j, Y');
-    }
 public static function getEloquentQuery(): Builder
 {
     $user = Auth::user();

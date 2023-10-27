@@ -196,16 +196,23 @@ class LoanResource extends Resource
         $nextPaymentDate = $startDate;
 
         if ($installment === '4') {
-            while ($nextPaymentDate->isBefore($today)) {
+            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
                 $nextPaymentDate->addWeek();
             }
         } elseif ($installment === '1') {
-            while ($nextPaymentDate->isBefore($today)) {
+            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
                 $nextPaymentDate->addMonth();
             }
         }
+
+        // Check if nextPaymentDate has exceeded the end date
+        if ($nextPaymentDate->isAfter($endDate)) {
+            return $endDate->format('F j, Y'); // Return the end date
+        }
+
         return $nextPaymentDate->format('F j, Y');
     }
+
     private static function calculateCurrentPaymentSchedule(Applicant $record, $decrement = true): string
 {
     $installment = $record->installment;
