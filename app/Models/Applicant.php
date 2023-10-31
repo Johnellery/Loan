@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use DateInterval;
 use DateTime;
+use Illuminate\Support\Facades\DB;
 class Applicant extends Model
 {
     use HasFactory;
@@ -88,6 +89,9 @@ class Applicant extends Model
     'month5',
     'month6',
     'is_status',
+    'payment_schedule',
+    'payment_schedule_slug',
+    'payment_date',
 ];
 
     public function branch()
@@ -135,7 +139,6 @@ class Applicant extends Model
     {
         return $this->is_status === 'repossessing';
     }
-
     /// FUNCTIONALITY
     private static function calculatePaymentDescription(Applicant $record): string
 {
@@ -166,55 +169,100 @@ class Applicant extends Model
 
 
 private static function calculatePaymentSchedule(Applicant $record): string
-{
-    $installment = $record->installment;
-    $startDate = Carbon::parse($record->start)->startOfDay();
-    $endDate = Carbon::parse($record->end)->startOfDay();
-    $today = Carbon::now()->startOfDay();
-    $nextPaymentDate = $startDate;
+    {
+        $installment = $record->installment;
+        $startDate = Carbon::parse($record->start)->startOfDay();
+        $endDate = Carbon::parse($record->end)->startOfDay();
+        $today = Carbon::now()->startOfDay();
+        $nextPaymentDate = $startDate;
 
-    if ($installment === '4') {
-        while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
-            $nextPaymentDate->addWeek();
+        if ($installment === '4') {
+            // Calculate the next payment date as a week from the start date
+            $nextPaymentDate = $startDate->copy()->addWeek();
+        } elseif ($installment === '1') {
+            // Calculate the next payment date as a month from the start date
+            $nextPaymentDate = $startDate->copy()->addMonth();
         }
-    } elseif ($installment === '1') {
+
+        // Check if the calculated nextPaymentDate is before today and before the end date
         while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
-            $nextPaymentDate->addMonth();
+            if ($installment === '4') {
+                $nextPaymentDate->addWeek();
+            } elseif ($installment === '1') {
+                $nextPaymentDate->addMonth();
+            }
         }
+
+        // Check if nextPaymentDate has exceeded the end date
+        if ($nextPaymentDate->isAfter($endDate)) {
+            return $endDate->format('F j, Y'); // Return the end date
+        }
+
+        return $nextPaymentDate->format('F j, Y');
     }
+    private static function calculatePaymentSchedule1(Applicant $record): string
+    {
+        $installment = $record->installment;
+        $startDate = Carbon::parse($record->start)->startOfDay();
+        $endDate = Carbon::parse($record->end)->startOfDay();
+        $today = Carbon::now()->startOfDay();
+        $nextPaymentDate = $startDate;
 
-    // Check if nextPaymentDate has exceeded the end date
-    if ($nextPaymentDate->isAfter($endDate)) {
-        return $endDate->format('F j, Y'); // Return the end date
+        if ($installment === '4') {
+            // Calculate the next payment date as a week from the start date
+            $nextPaymentDate = $startDate->copy()->addWeek();
+        } elseif ($installment === '1') {
+            // Calculate the next payment date as a month from the start date
+            $nextPaymentDate = $startDate->copy()->addMonth();
+        }
+
+        // Check if the calculated nextPaymentDate is before today and before the end date
+        while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+            if ($installment === '4') {
+                $nextPaymentDate->addWeek();
+            } elseif ($installment === '1') {
+                $nextPaymentDate->addMonth();
+            }
+        }
+
+        // Check if nextPaymentDate has exceeded the end date
+        if ($nextPaymentDate->isAfter($endDate)) {
+            return $endDate; // Return the end date
+        }
+
+        return $nextPaymentDate;
     }
-
-    return $nextPaymentDate->format('F j, Y');
-}
-
 private static function calculatePaymentStatus(Applicant $record): string
 {
     $currentDate = Carbon::now();
-    $nextPaymentDate = Carbon::parse(self::calculatePaymentSchedule($record));
+    $nextPaymentDate = Carbon::parse(self::calculatePaymentSchedule($record))->startOfDay(); // Make sure it starts at the beginning of the day
     $billingRecords = $record->billing->where('billing_status', 'remitted');
 
     $paidOnScheduledDate = $billingRecords
-        ->where('created_at', '>=', $nextPaymentDate)
-        ->where('created_at', '<', $nextPaymentDate)
-        ->isNotEmpty();
-    $paidWithinMonth = $billingRecords
-        ->where('created_at', '>=', $currentDate)
-        ->isNotEmpty();
+    ->where('created_at', '<', $nextPaymentDate)
+    ->isNotEmpty();
+
 
     if ($paidOnScheduledDate) {
         return "Paid";
-    } elseif ($paidWithinMonth) {
-        return "Paid";
+    } elseif ($currentDate->equalTo($nextPaymentDate)) {
+        return "Pending";
     } elseif ($currentDate->greaterThan($nextPaymentDate)) {
         return "Missed";
     } else {
         return "Pending";
     }
 }
+private static function calculateDate(Applicant $record): string
+{
+    $currentDate = Carbon::now();
+    $nextPaymentDate = Carbon::parse(self::calculatePaymentSchedule($record))->startOfDay(); // Make sure it starts at the beginning of the day
+    $billingRecords = $record->billing->where('billing_status', 'remitted');
+
+    $created = $billingRecords->created_at;
+    return $created;
+}
+
 
 
     ///FUNCTIONALITY
@@ -246,6 +294,16 @@ private static function calculatePaymentStatus(Applicant $record): string
             'is_paid' => $ispaid,
         ]);
         return $ispaid;
+    }
+    public function updateSched()
+    {
+        $ispaid1 = $this->calculatePaymentSchedule($this);
+        $ispaid = $this->calculatePaymentSchedule1($this);
+        $this->update([
+            'payment_schedule_slug' => $ispaid1,
+            'payment_schedule' => $ispaid,
+        ]);
+        return $ispaid1;
     }
     public function updateDescription()
     {

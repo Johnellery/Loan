@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\Widgets;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -15,6 +16,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -25,7 +27,7 @@ use Ysfkaya\FilamentPhoneInput\PhoneInputNumberType;
 use Ysfkaya\FilamentPhoneInput\Tables\PhoneInputColumn;
 use App\Filament\Resources\UserResource\Widgets\UserStatsOverview;
 use Illuminate\Validation\Rules\Password;
-
+use Filament\Tables\Filters\SelectFilter;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -90,7 +92,7 @@ class UserResource extends Resource
                 ->password()
                 ->rule(Password::default()
                 ->mixedCase()
-                ->numbers(1) // Require at least one number
+                ->numbers() // Require at least one number
                 ->uncompromised(3)
             )
                 ->same('passwordConfirmation')
@@ -112,6 +114,9 @@ class UserResource extends Resource
     {
         return $table
         ->defaultPaginationPageOption(5)
+        ->defaultSort('name', 'asc')
+        ->deferLoading()
+        ->paginatedWhileReordering()
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                 ->label('User name')
@@ -147,14 +152,22 @@ class UserResource extends Resource
                 ]),
             ])
             ->filters([
-            Tables\Filters\TernaryFilter::make('status')
-                ->label('Account status')
-                ->trueLabel('Active')
-                ->falseLabel('Pending')
+                SelectFilter::make('status')
+                ->options([
+                    'active' => 'Active Account',
+                    'deactivated' => 'Deactivated Account',
+                ])
                 ->native(false)
-                ->placeholder('All')
-                ->default(null)
-                ->nullable(),
+                ->label('Account Status'),
+                // TernaryFilter::make('role_id')
+                // ->options([
+                //     'Admin' => 'Administrator',
+                //     'Staff' => 'Secretary',
+                //     'Collector' => 'Collector',
+                //     'Customer' => 'Customer',
+                // ])
+                // ->native(false)
+                // ->label('Account Role'),
             ])
             ->actions([
                 ActionGroup::make([

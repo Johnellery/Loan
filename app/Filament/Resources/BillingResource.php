@@ -203,6 +203,7 @@ class BillingResource extends Resource
     {
         return $table
         ->defaultPaginationPageOption(5)
+        ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('transaction_number')
                     ->searchable()

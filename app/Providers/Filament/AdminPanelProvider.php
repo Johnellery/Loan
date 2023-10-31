@@ -69,7 +69,7 @@ class AdminPanelProvider extends PanelProvider
                 ->excludes([
                     // RickDBCN\FilamentEmail\Filament\Resources\EmailResource::class,
                 ]),
-                new \RickDBCN\FilamentEmail\FilamentEmail(),
+                // new \RickDBCN\FilamentEmail\FilamentEmail(),
                 // FilamentLanguageSwitchPlugin::make(),
                 BreezyCore::make()
                 ->avatarUploadComponent(fn() => FileUpload::make('avatar_url')->disk('public'))

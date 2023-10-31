@@ -8,7 +8,6 @@
         }
 
         .invoice {
-            border: 1px solid #ccc;
             padding: 20px;
             max-width: 600px;
             margin: 0 auto;
@@ -101,6 +100,7 @@
         </table>
         <hr>
 
+        @if ($loan->cashier !== 'Paypal')
         <div class="line right-aligned">
             <br>
             <span class="value">{{ $loan->cashier }}</span>
@@ -109,6 +109,8 @@
                 <span class="label">Cashier/Authorized Representative</span>
             </div>
         </div>
+    @endif
+
     </div>
 </body>
 </html>

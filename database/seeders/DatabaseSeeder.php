@@ -131,8 +131,9 @@ class DatabaseSeeder extends Seeder
     'Applicant25','Applicant26','Applicant27','Applicant28',
     'Applicant29','Applicant30','Applicant31','Applicant32','Applicant33','Applicant34','Applicant35','Applicant36','Applicant37','Applicant38',
     'Applicant39','Applicant40','Applicant41',
-    'Applicant42','Applicant43','Applicant44','Applicant45','Applicant46','Applicant47','Applicant48','Applicant49','Applicant50','Applicant51',
-    'Applicant52','Applicant53','Applicant54','Applicant55','Applicant56','Applicant57',];
+    'Applicant42',];
+    // 'Applicant43','Applicant44','Applicant45','Applicant46','Applicant47','Applicant48','Applicant49','Applicant50','Applicant51',
+    // 'Applicant52','Applicant53','Applicant54','Applicant55','Applicant56','Applicant57',
         foreach ($applicantStates as $applicantState) {
             Applicant::factory()->$applicantState()->create();
                 }

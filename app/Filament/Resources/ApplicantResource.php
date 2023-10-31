@@ -16,6 +16,7 @@ use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -341,6 +342,7 @@ class ApplicantResource extends Resource
         $user = Auth::user();
         return $table
         ->defaultPaginationPageOption(5)
+        ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('fullname')
                 ->searchable()
@@ -412,14 +414,22 @@ class ApplicantResource extends Resource
                 ->falseLabel('Archive Record Only')
                 ->placeholder('All')
                 ->default(null),
-                Tables\Filters\TernaryFilter::make('status')
-                ->label('Approval status')
-                ->trueLabel('Approved')
-                ->falseLabel('Pending')
+                SelectFilter::make('status')
+                ->options([
+                    'approved' => 'Approved',
+                    'pending' => 'Pending',
+                    'rejected' => 'Rejected',
+                ])
                 ->native(false)
-                ->placeholder('All')
-                ->default(null)
-                ->nullable(),
+                ->label('Loan Status'),
+                SelectFilter::make('ci_status')
+                ->options([
+                    'approved' => 'Approved',
+                    'pending' => 'Pending',
+                    'rejected' => 'Rejected',
+                ])
+                ->native(false)
+                ->label('Loan Status'),
             ])
             ->actions([
                 ActionGroup::make([

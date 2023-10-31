@@ -27,7 +27,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Request;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
-
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 class LoanResource extends Resource
 {
     protected static ?string $model = Applicant::class;
@@ -61,6 +63,9 @@ class LoanResource extends Resource
         return $table
         ->query(fn (Applicant $query) => self::applyRoleConditions($query))
         ->defaultPaginationPageOption(5)
+        ->defaultSort('payment_schedule_slug', 'desc')
+        ->deferLoading()
+        ->paginatedWhileReordering()
             ->columns([
                 Tables\Columns\TextColumn::make('fullname')
                 ->searchable()
@@ -107,15 +112,40 @@ class LoanResource extends Resource
                 ->getStateUsing(function (Applicant $record) {
                     return $record->updateStatus();
                 }),
-                Tables\Columns\TextColumn::make('payment_schedule')
+                Tables\Columns\TextColumn::make('payment_schedule_slug')
                 ->label('Payment Schedule')
-                ->getStateUsing(fn (Applicant $record) => self::calculatePaymentSchedule($record))
-                ->description(function (Applicant $record) {
-                    return $record->updateDescription();
-                }),
+                ->getStateUsing(function (Applicant $record) {
+                        return $record->updateSched();
+                     })
+                // ->description(function (Applicant $record) {
+                //     return $record->updateDescription();
+                // }),
             ])
             ->filters([
-                //
+                Filter::make('created_at')
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('payment_schedule', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('payment_schedule', '<=', $date),
+                        );
+                }),
+                SelectFilter::make('is_paid')
+                ->options([
+                    'Paid' => 'Paid',
+                    'Pending' => 'Pending',
+                    'Missed' => 'Missed',
+                ])
+                ->native(false)
+                ->label('Payment status'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -196,11 +226,18 @@ class LoanResource extends Resource
         $nextPaymentDate = $startDate;
 
         if ($installment === '4') {
-            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
-                $nextPaymentDate->addWeek();
-            }
+            // Calculate the next payment date as a week from the start date
+            $nextPaymentDate = $startDate->copy()->addWeek();
         } elseif ($installment === '1') {
-            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+            // Calculate the next payment date as a month from the start date
+            $nextPaymentDate = $startDate->copy()->addMonth();
+        }
+
+        // Check if the calculated nextPaymentDate is before today and before the end date
+        while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+            if ($installment === '4') {
+                $nextPaymentDate->addWeek();
+            } elseif ($installment === '1') {
                 $nextPaymentDate->addMonth();
             }
         }
@@ -212,6 +249,7 @@ class LoanResource extends Resource
 
         return $nextPaymentDate->format('F j, Y');
     }
+
 
     private static function calculateCurrentPaymentSchedule(Applicant $record, $decrement = true): string
 {

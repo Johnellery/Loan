@@ -6,10 +6,13 @@ use App\Filament\Resources\RepossessionResource\Pages;
 use App\Filament\Resources\RepossessionResource\RelationManagers;
 use App\Models\Applicant;
 use Filament\Forms;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -49,6 +52,9 @@ class RepossessionResource extends Resource
         return $table
         ->query(fn (Applicant $query) => self::applyRoleConditions($query))
         ->defaultPaginationPageOption(5)
+        ->defaultSort('payment_schedule', 'desc')
+        ->deferLoading()
+        ->paginatedWhileReordering()
             ->columns([
                 Tables\Columns\TextColumn::make('fullname')
                 ->searchable()
@@ -84,6 +90,14 @@ class RepossessionResource extends Resource
                 ->getStateUsing(function (Applicant $record) {
                     return $record->updateRemainingBalance();
                 }),
+                Tables\Columns\TextColumn::make('payment_schedule')
+                ->label('Payment Schedule')
+                ->getStateUsing(function (Applicant $record) {
+                        return $record->updateSched();
+                     }),
+                // ->description(function (Applicant $record) {
+                //     return $record->updateDescription();
+                // }),
                 Tables\Columns\TextColumn::make('is_status')
                 ->badge()
                 ->getStateUsing(function (Applicant $record): string {
@@ -103,9 +117,33 @@ class RepossessionResource extends Resource
                     'danger' => 'Repossessing Failed',
                     'primary' => 'Repossessing Success',
                 ]),
+
             ])
             ->filters([
-                //
+                Filter::make('created_at')
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('payment_schedule', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('payment_schedule', '<=', $date),
+                        );
+                }),
+                SelectFilter::make('is_paid')
+                ->options([
+                    'Paid' => 'Paid',
+                    'Pending' => 'Pending',
+                    'Missed' => 'Missed',
+                ])
+                ->native(false)
+                ->label('Payment status'),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),

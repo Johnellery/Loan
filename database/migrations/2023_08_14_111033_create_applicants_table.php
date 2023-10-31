@@ -67,7 +67,9 @@ return new class () extends Migration {
             $table->string('start')->nullable();
             $table->string('end')->nullable();
             $table->string('ci_sched')->nullable();
-            $table->string('payment_schedule')->nullable();
+            $table->timestamp('payment_schedule')->nullable();
+            $table->string('payment_schedule_slug')->nullable();
+            $table->string('payment_date')->nullable();
             $table->timestamp('week11')->nullable();
             $table->timestamp('week12')->nullable();
             $table->timestamp('week13')->nullable();

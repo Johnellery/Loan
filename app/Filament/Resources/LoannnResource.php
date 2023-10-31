@@ -7,8 +7,11 @@ use App\Filament\Resources\LoannnResource\RelationManagers;
 use App\Models\Applicant;
 use DateInterval;
 use DateTime;
+use Filament\Forms\Components\DatePicker;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -101,12 +104,35 @@ class LoannnResource extends Resource
                 Tables\Columns\TextColumn::make('payment_schedule')
                 ->label('Payment Schedule')
                 ->getStateUsing(fn (Applicant $record) => self::calculatePaymentSchedule($record))
-                ->description(function (Applicant $record) {
-                    return $record->updateDescription();
-                }),
+                // ->description(function (Applicant $record) {
+                //     return $record->updateDescription();
+                // }),
             ])
             ->filters([
-                //
+                Filter::make('created_at')
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('payment_schedule', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('payment_schedule', '<=', $date),
+                        );
+                }),
+                SelectFilter::make('is_paid')
+                ->options([
+                    'Paid' => 'Paid',
+                    'Pending' => 'Pending',
+                    'Missed' => 'Missed',
+                ])
+                ->native(false)
+                ->label('Payment status'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -157,11 +183,18 @@ class LoannnResource extends Resource
         $nextPaymentDate = $startDate;
 
         if ($installment === '4') {
-            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
-                $nextPaymentDate->addWeek();
-            }
+            // Calculate the next payment date as a week from the start date
+            $nextPaymentDate = $startDate->copy()->addWeek();
         } elseif ($installment === '1') {
-            while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+            // Calculate the next payment date as a month from the start date
+            $nextPaymentDate = $startDate->copy()->addMonth();
+        }
+
+        // Check if the calculated nextPaymentDate is before today and before the end date
+        while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+            if ($installment === '4') {
+                $nextPaymentDate->addWeek();
+            } elseif ($installment === '1') {
                 $nextPaymentDate->addMonth();
             }
         }
@@ -175,19 +208,33 @@ class LoannnResource extends Resource
     }
 
 
+
 public static function getEloquentQuery(): Builder
 {
     $user = Auth::user();
     $query = parent::getEloquentQuery();
 
     if ($user->role->name === 'Admin') {
-        return $query->withoutGlobalScopes([SoftDeletingScope::class]);
-    } elseif ($user->role->name === 'Staff'  || $user->role->name === 'Collector') {
+        return $query->where('status', 'approved')
+                     ->where('remaining_balance', '>', 0)
+                     ->where('is_status', 'active')
+                     ->where('ci_status', 'approved');
+    } elseif ($user->role->name === 'Staff' || $user->role->name === 'Collector') {
         return $query->where('branch_id', $user->branch_id)
-            ->withoutGlobalScopes([SoftDeletingScope::class]);
-    } elseif ($user->role->name === 'Customer') {
+                     ->where('remaining_balance', '>', 0)
+                     ->where('ci_status', 'approved')
+                     ->where('is_status', 'active')
+                     ->where(function ($query) {
+                         $query->where('status', 'approved');
+                     });
+    } elseif ($user->role->name === 'Customer' ) {
         return $query->where('user_id', $user->id)
-            ->withoutGlobalScopes([SoftDeletingScope::class]);
+                     ->where('remaining_balance', '>', 0)
+                     ->where('is_status', 'active')
+                     ->where('ci_status', 'approved')
+                     ->where(function ($query) {
+                         $query->where('status', 'approved');
+                     });
     }
     return $query;
 }
