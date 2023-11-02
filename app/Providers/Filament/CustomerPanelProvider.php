@@ -90,6 +90,7 @@ class CustomerPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->favicon(asset('images/ritaa.png'));
 
 

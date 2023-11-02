@@ -6,9 +6,14 @@ use App\Filament\Resources\LoannResource\Pages;
 use App\Filament\Resources\LoannResource\RelationManagers;
 use App\Models\Applicant;
 use App\Models\Loann;
+use App\Tables\Columns\ProgressColumn;
 use Filament\Forms;
+use Filament\Infolists\Components\Section;
 use Filament\Forms\Form;
+use Filament\Infolists\Components\IconEntry;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
@@ -88,6 +93,32 @@ class LoannResource extends Resource
                     'danger' => 'Rejected',
                     'warning' => 'Pending'
                 ]),
+                ProgressColumn::make('progress')
+                ->getStateUsing(function (Applicant $record) {
+                    $created = 20;
+                    $status = $record->status;
+                    $CI = $record->ci_status;
+
+                    if ($status == 'approved') {
+                        if ($CI == 'approved') {
+                            $approved = $created + 80;
+                        } elseif ($CI == 'pending') {
+                            $approved = $created + 40;
+                        } elseif ($CI == 'rejected') {
+                            $approved = $created + 80;
+                        } else {
+                            $approved = $created + 40; // Default if CI status is not specified
+                        }
+                    } elseif ($status == 'rejected') {
+                        $approved = $created + 80;
+                    } elseif ($status == 'pending') {
+                        $approved = $created;
+                    } else {
+                        $approved = 0; // Default if status is not specified
+                    }
+
+                    return $approved;
+                })
             ])
             ->filters([
                 //
@@ -147,9 +178,238 @@ class LoannResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Fieldset::make('Customer Loan Information')
+            Infolists\Components\Section::make('Loan Applicantion Progress')
+                ->description('Track the status and progress of your loan application.')
                 ->schema([
-                Infolists\Components\Section::make()->schema([
+                    Infolists\Components\Grid::make(1)->schema([
+                        Infolists\Components\Grid::make(3)->schema([
+                            Section::make('')
+                            ->schema([
+                                Infolists\Components\Grid::make(3)
+                                ->schema([
+                        Infolists\Components\TextEntry::make('created_at')
+                        ->label('')
+                        ->getStateUsing(function (Applicant $record) {
+                            $date = new \DateTime($record->created_at);
+                            return $date->format('F j, Y');
+                        }),
+                        IconEntry::make('status')
+                        ->label('Status')
+                        ->icon(fn (string $state): string => match ($state) {
+                            'pending' => 'heroicon-s-exclamation-circle',
+                            'approved' => 'heroicon-s-exclamation-circle',
+                            'rejected' => 'heroicon-s-exclamation-circle',
+                        })
+                        ->color(fn (string $state): string => match ($state) {
+                            'pending' => 'primary',
+                            'approved' => 'primary',
+                            'rejected' => 'primary',
+                            default => 'primary',
+                        }),
+                        TextEntry::make('Loan Applicantion')
+                        ->label('Loan Applicantion')
+                        ->weight(FontWeight::Light)
+                        ->getStateUsing(function (Applicant $record) {
+                            return "Date of your Loan Applicant created";
+                        }),
+                        ])
+                    ]),
+                        Section::make('')
+                        ->schema([
+                            Infolists\Components\Grid::make(3)
+                            ->schema([
+                        Infolists\Components\TextEntry::make('status_date')
+                        ->label('')
+                        ->getStateUsing(function (Applicant $record) {
+                            $date =  $record->status_date;
+
+                            if ($date) {
+                                $date1 =  new \DateTime($date);
+                                return $date1->format('F j, Y');
+                            } else {
+                                return 'Currently being review';
+                            }
+                        }),
+                        IconEntry::make('status')
+                        ->label('')
+                        ->icon(fn (string $state): string => match ($state) {
+                            'pending' => 'heroicon-s-clock',
+                            'approved' => 'heroicon-s-check-circle',
+                            'rejected' => 'heroicon-s-x-circle',
+                        })
+                        ->color(fn (string $state): string => match ($state) {
+
+                            'pending' => 'warning',
+                            'approved' => 'success',
+                            'rejected' => 'danger',
+                            default => 'primary',
+                        }),
+                        TextEntry::make('Loan Applicantion')
+                        ->color('gray')
+                        ->weight(FontWeight::Light)
+                        ->label('Loan Application Review in Progress')
+                        ->getStateUsing(function (Applicant $record) {
+                            $status = $record->status;
+                            if ($status == 'approved') {
+                                return "Your loan application has been approved and will now proceed to the Credit Investigation (CI) stage.";
+                            } elseif ($status == 'rejected') {
+                                return "Your loan application has been rejected.";
+                            } else {
+                                return "Your loan application is currently under review, and we will keep you updated on its status.";
+                            }
+                        }),
+                        ])
+                    ]),///
+                        Section::make('')
+                        ->schema([
+                            Infolists\Components\Grid::make(3)
+                            ->schema([
+                        Infolists\Components\TextEntry::make('status_date')
+                        ->label('')
+                        ->getStateUsing(function (Applicant $record) {
+                            $date =  $record->ci_sched;
+                            $status = $record->status;
+                            if ($date) {
+                                $date1 =  new \DateTime($date);
+                                return $date1->format('F j, Y');
+                            }  else if ($status == 'rejected'){
+                                return '--------------------';
+                            } else {
+                                return 'Currently being review';
+                            }
+                        }),
+                        IconEntry::make('status')
+                        ->label('')
+                        ->icon(fn (string $state): string => match ($state) {
+                            'pending' => 'heroicon-s-clock',
+                            'approved' => 'heroicon-s-exclamation-circle',
+                            'rejected' => 'heroicon-s-x-circle',
+                        })
+                        ->color(fn (string $state): string => match ($state) {
+                            'pending' => 'warning',
+                            'approved' => 'primary',
+                            'rejected' => 'danger',
+                            default => 'primary',
+                        }),
+                        TextEntry::make('Loan Applicantion')
+                        ->color('gray')
+                        ->weight(FontWeight::Light)
+                        ->label('Date of your Credit Investigation')
+                        ->getStateUsing(function (Applicant $record) {
+                            $status = $record->status;
+                            if ($status == 'approved') {
+                                return "Please be prepared for your upcoming Credit Investigation date.";
+                            } elseif ($status == 'rejected') {
+                                return "Your loan application has been rejected.";
+                            } else {
+                                return "Your loan application is currently under review. We'll schedule the Credit Investigation (CI) date shortly and keep you informed";
+                            }
+                        }),
+                        ])
+                    ]),///
+                                Section::make('')
+                                ->schema([
+                                    Infolists\Components\Grid::make(3)
+                                    ->schema([
+                                Infolists\Components\TextEntry::make('ci_date')
+                                ->label('')
+                                ->getStateUsing(function (Applicant $record) {
+                                    $date =  $record->ci_date;
+                                    $status = $record->status;
+                                    if ($date) {
+                                        $date1 =  new \DateTime($date);
+                                        return $date1->format('F j, Y');
+                                    }  else if ($status == 'rejected'){
+                                        return '--------------------';
+                                    } else {
+                                        return '--------------------';
+                                    }
+                                }),
+                                IconEntry::make('status')
+                                ->label('')
+                                ->icon(fn (string $state): string => match ($state) {
+                                    'pending' => 'heroicon-s-clock',
+                                    'approved' => 'heroicon-s-check-circle',
+                                    'rejected' => 'heroicon-s-x-circle',
+                                })
+                                ->color(fn (string $state): string => match ($state) {
+                                    'pending' => 'warning',
+                                    'approved' => 'success',
+                                    'rejected' => 'danger',
+                                    default => 'primary',
+                                }),
+                                TextEntry::make('Loan Applicantion')
+                                ->color('gray')
+                                ->weight(FontWeight::Light)
+                                ->label('Credit Investigation Status')
+                                ->getStateUsing(function (Applicant $record) {
+                                    $status = $record->status;
+                                    if ($status == 'approved') {
+                                        return "We are pleased to inform you that your loan application has been approved following a successful Credit Investigation.";
+                                    } elseif ($status == 'rejected') {
+                                        return "Regrettably, your loan application has been declined during the Credit Investigation process.";
+                                    } else {
+                                        return "Your loan application is currently undergoing a Credit Investigation review, and we will provide regular updates on its status.";
+                                    }
+                                }),
+                                ])
+                            ]),///
+                            Section::make('')
+                            ->schema([
+                                Infolists\Components\Grid::make(3)
+                                ->schema([
+                            Infolists\Components\TextEntry::make('ci_date')
+                            ->label('')
+                            ->getStateUsing(function (Applicant $record) {
+                                $date =  $record->ci_date;
+                                $status = $record->status;
+                                if ($date) {
+                                    $date1 =  new \DateTime($date);
+                                    return $date1->format('F j, Y');
+                                }  else if ($status == 'rejected'){
+                                    return '--------------------';
+                                } else {
+                                    return '--------------------';
+                                }
+                            }),
+                            IconEntry::make('status')
+                            ->label('')
+                            ->icon(fn (string $state): string => match ($state) {
+                                'pending' => 'heroicon-s-clock',
+                                'approved' => 'heroicon-s-exclamation-circle',
+                                'rejected' => 'heroicon-s-x-circle',
+                            })
+                            ->color(fn (string $state): string => match ($state) {
+                                'pending' => 'warning',
+                                'approved' => 'primary',
+                                'rejected' => 'danger',
+                                default => 'primary',
+                            }),
+                            TextEntry::make('Loan Applicantion')
+                            ->color('gray')
+                            ->weight(FontWeight::Light)
+                            ->label('Loan Details')
+                            ->getStateUsing(function (Applicant $record) {
+                                $status = $record->status;
+                                $installment = $record->installment;
+                                if ($status == 'approved' && $installment == '1') {
+                                    return "Your loan payments are scheduled to commence next month." ;
+                                } else if ($status == 'approved' && $installment == '4') {
+                                    return "Your loan payments are scheduled to commence next week." ;
+                                }elseif ($status == 'rejected') {
+                                    return "Regrettably, your loan application has been declined during the Credit Investigation process.";
+                                } else {
+                                    return "Your loan application is currently undergoing a Credit Investigation review, and we will provide regular updates on its status.";
+                                }
+                            }),
+                            ])
+                        ]),///
+                        ])
+                        ])
+                    ])->collapsed(),
+                Section::make('Customer')
+                ->description('Customer Loan Information')
+                ->schema([
                     Infolists\Components\Grid::make(3)->schema([
                         Infolists\Components\TextEntry::make('customer_name')
                         ->label('Fullname'),
@@ -170,19 +430,18 @@ class LoannResource extends Resource
                         Infolists\Components\TextEntry::make('spouse')
                         ->label('Spouse')
                         ->getStateUsing(function (Applicant $record) {
-                            return $record->spouse ?? 'none';
+                            return empty($record->spouse) ? 'None' : $record->spouse;
                         }),
                         Infolists\Components\TextEntry::make('spouse_contact')
                         ->label('Contact number')
                         ->getStateUsing(function (Applicant $record) {
-                            return $record->spouse_contact ?? 'none';
+                            return $record->spouse_contact ?? 'None';
                         }),
                     ])
-                ])
-                    ]),
-            Infolists\Components\Fieldset::make('Address')
+                ])->collapsed(),
+            Infolists\Components\Section::make('Address')
+            ->description('Current Address')
             ->schema([
-            Infolists\Components\Section::make()->schema([
                 Infolists\Components\Grid::make(4)->schema([
                     Infolists\Components\TextEntry::make('unit')
                     ->label('Unit no., street'),
@@ -194,13 +453,11 @@ class LoannResource extends Resource
                     ->label('City/Municipality'),
                     Infolists\Components\TextEntry::make('province')
                     ->label('Province'),
-
                     ])
-                ])
-                ]),
-                Infolists\Components\Fieldset::make('Loan Details')
+                ])->collapsed(),
+                Infolists\Components\Section::make('Installment')
+                ->description('Loan details')
                 ->schema([
-                Infolists\Components\Section::make()->schema([
                     Infolists\Components\Grid::make(3)->schema([
                         Infolists\Components\TextEntry::make('bike.name')
                         ->label('Bike name'),
@@ -224,22 +481,20 @@ class LoannResource extends Resource
                             }
                         }),
                         ])
-                    ])
-                    ]),
-                    Infolists\Components\Fieldset::make('Barangay Clearance')
+                    ])->collapsed(),
+                    Infolists\Components\Section::make('Barangay Clearance')
+                    ->description('Requirements Details')
                     ->schema([
-                    Infolists\Components\Section::make()->schema([
                         Infolists\Components\Grid::make(1)->schema([
                             Infolists\Components\ImageEntry::make('barangay_clearance')
                             ->hiddenlabel()
                             ->width(750)
                             ->height(750),
                             ])
-                        ])
-                        ]),
-                        Infolists\Components\Fieldset::make('Valid ID')
+                        ])->collapsed(),
+                        Infolists\Components\Section::make('Valid ID')
+                        ->description('Valid ID Requirements')
                         ->schema([
-                        Infolists\Components\Section::make()->schema([
                             Infolists\Components\Grid::make(1)->schema([
                                 Infolists\Components\TextEntry::make('valid_id_list')
                                 ->label('ID type'),
@@ -249,8 +504,7 @@ class LoannResource extends Resource
                                 ->size(750)
                                 ->height(300),
                                 ])
-                            ])
-                            ]),
+                            ])->collapsed(),
             // Infolists\Components\Fieldset::make('Documents')
             // ->schema([
             // Infolists\Components\Section::make()->schema([

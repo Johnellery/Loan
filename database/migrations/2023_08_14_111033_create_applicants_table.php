@@ -100,6 +100,17 @@ return new class () extends Migration {
             $table->timestamp('month4')->nullable();
             $table->timestamp('month5')->nullable();
             $table->timestamp('month6')->nullable();
+            // $table->string('paid1')->nullable();
+            // $table->string('paid2')->nullable();
+            // $table->string('paid3')->nullable();
+            // $table->string('paid4')->nullable();
+            // $table->string('paid5')->nullable();
+            // $table->string('paid6')->nullable();
+            $table->string('progress')->default('0');
+            $table->timestamp('status_date')->nullable();
+            $table->timestamp('ci_date')->nullable();
+            $table->string('remark')->nullable();
+            $table->string('ci_remark')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

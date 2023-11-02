@@ -8,6 +8,7 @@ use App\Models\Applicant;
 use App\Models\Billing;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms;
@@ -15,6 +16,8 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -244,7 +247,30 @@ class BillingResource extends Resource
                     ]),
             ])
             ->filters([
-                // Tables\Filters\TrashedFilter::make(),
+                Filter::make('created_at')
+                ->form([
+                    DatePicker::make('created_from'),
+                    DatePicker::make('created_until'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        );
+                }),
+                SelectFilter::make('billing_status')
+                ->options([
+                    'remitted' => 'Remitted',
+                    'processing' => 'Processing',
+                    'not_received' => 'Not Received',
+                ])
+                ->native(false)
+                ->label('Status'),
             ])
             ->actions([
                 ActionGroup::make([
