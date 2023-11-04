@@ -8,6 +8,7 @@ $philcities = Philmuni::all();
 $philbarangays = Philbrgy::all();
 
 ?>
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -26,7 +27,17 @@ $philbarangays = Philbrgy::all();
 
         <!-- Styles -->
         @livewireStyles
+        <style>
+            /* CSS for Modal */
+        .blue-link {
+                color: blue;
+                text-decoration: underline; /* Optionally, add an underline to make it look like a typical link */
+            }
 
+        /* Add more styling as needed */
+
+
+        </style>
     </head>
     <body class="font-sans antialiased">
         <x-banner />
@@ -270,6 +281,11 @@ $philbarangays = Philbrgy::all();
 
                         </div>
                         </div>
+                        <a>By clicking the "Save" button, you agree to our</a>
+                        <a href="{{ route('terms.show') }}" class="blue-link">Terms and Conditions</a>
+                        <a>,</a>
+                        <a href="{{ route('terms.privacy') }}" class="blue-link">Privacy policy</a>
+
                         <div class="mt-6 flex items-center justify-end gap-x-6">
                             <button type="button" class="text-sm font-semibold leading-6 text-gray-900" id="cancelButton">
                                 <a href="{{ route('livewire.newcart') }}">Cancel</a>

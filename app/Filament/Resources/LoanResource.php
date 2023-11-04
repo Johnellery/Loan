@@ -62,7 +62,7 @@ class LoanResource extends Resource
     {
 
         return $table
-        ->query(fn (Applicant $query) => self::applyRoleConditions($query))
+        // ->query(fn (Applicant $query) => self::applyRoleConditions($query))
         ->defaultPaginationPageOption(5)
         ->defaultSort('payment_schedule_slug', 'desc')
         ->deferLoading()
@@ -214,11 +214,27 @@ class LoanResource extends Resource
                          ->where(function ($query) {
                              $query->where('status', 'approved');
                          });
-        } elseif ($user->role->name === 'Customer' ) {
-            return $query->where('user_id', $user->id)
+        }
+
+        return $query;
+    }
+    public static function getEloquentQuery(): Builder
+    {
+        $user = Auth::user();
+        $query = parent::getEloquentQuery();
+
+        if ($user->role->name === 'Admin') {
+            return $query->withoutGlobalScopes([SoftDeletingScope::class])
+                         ->where('status', 'approved')
                          ->where('remaining_balance', '>', 0)
                          ->where('is_status', 'active')
+                         ->where('ci_status', 'approved');
+        } elseif ($user->role->name === 'Staff' || $user->role->name === 'Collector') {
+            return $query->where('branch_id', $user->branch_id)
+                         ->withoutGlobalScopes([SoftDeletingScope::class])
+                         ->where('remaining_balance', '>', 0)
                          ->where('ci_status', 'approved')
+                         ->where('is_status', 'active')
                          ->where(function ($query) {
                              $query->where('status', 'approved');
                          });
@@ -228,38 +244,7 @@ class LoanResource extends Resource
     }
 
 
-    private static function calculatePaymentSchedule(Applicant $record): string
-    {
-        $installment = $record->installment;
-        $startDate = Carbon::parse($record->start)->startOfDay();
-        $endDate = Carbon::parse($record->end)->startOfDay();
-        $today = Carbon::now()->startOfDay();
-        $nextPaymentDate = $startDate;
 
-        if ($installment === '4') {
-            // Calculate the next payment date as a week from the start date
-            $nextPaymentDate = $startDate->copy()->addWeek();
-        } elseif ($installment === '1') {
-            // Calculate the next payment date as a month from the start date
-            $nextPaymentDate = $startDate->copy()->addMonth();
-        }
-
-        // Check if the calculated nextPaymentDate is before today and before the end date
-        while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
-            if ($installment === '4') {
-                $nextPaymentDate->addWeek();
-            } elseif ($installment === '1') {
-                $nextPaymentDate->addMonth();
-            }
-        }
-
-        // Check if nextPaymentDate has exceeded the end date
-        if ($nextPaymentDate->isAfter($endDate)) {
-            return $endDate->format('F j, Y'); // Return the end date
-        }
-
-        return $nextPaymentDate->format('F j, Y');
-    }
 
 
     private static function calculateCurrentPaymentSchedule(Applicant $record, $decrement = true): string
@@ -291,19 +276,7 @@ class LoanResource extends Resource
 
     return $currentPaymentDate->format('F j, Y');
 }
-public static function getEloquentQuery(): Builder
-{
-    $user = Auth::user();
-    $query = parent::getEloquentQuery();
 
-    if ($user->role->name === 'Admin') {
-        return $query->withoutGlobalScopes([SoftDeletingScope::class]);
-    } elseif ($user->role->name === 'Staff'  || $user->role->name === 'Collector') {
-        return $query->where('branch_id', $user->branch_id)
-            ->withoutGlobalScopes([SoftDeletingScope::class]);
-    }
-    return $query;
-}
 public static function infolist(Infolist $infolist): Infolist
 {
     return $infolist
@@ -437,5 +410,37 @@ private static function calculatePaymentStatus(Applicant $record): string
     } else {
         return "Pending";
     }
+}
+private static function calculatePaymentSchedule(Applicant $record): string
+{
+    $installment = $record->installment;
+    $startDate = Carbon::parse($record->start)->startOfDay();
+    $endDate = Carbon::parse($record->end)->startOfDay();
+    $today = Carbon::now()->startOfDay();
+    $nextPaymentDate = $startDate;
+
+    if ($installment === '4') {
+        // Calculate the next payment date as a week from the start date
+        $nextPaymentDate = $startDate->copy()->addWeek();
+    } elseif ($installment === '1') {
+        // Calculate the next payment date as a month from the start date
+        $nextPaymentDate = $startDate->copy()->addMonth();
+    }
+
+    // Check if the calculated nextPaymentDate is before today and before the end date
+    while ($nextPaymentDate->isBefore($today) && $nextPaymentDate->isBefore($endDate)) {
+        if ($installment === '4') {
+            $nextPaymentDate->addWeek();
+        } elseif ($installment === '1') {
+            $nextPaymentDate->addMonth();
+        }
+    }
+
+    // Check if nextPaymentDate has exceeded the end date
+    if ($nextPaymentDate->isAfter($endDate)) {
+        return $endDate->format('F j, Y'); // Return the end date
+    }
+
+    return $nextPaymentDate->format('F j, Y');
 }
 }

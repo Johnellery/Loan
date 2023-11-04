@@ -12,7 +12,8 @@ class ApplicantOverview extends BaseWidget
     public ?Model $record = null;
     protected function getStats(): array
     {
-        $approvedBikeCount = Applicant::where('status', 'pending')->count();
+        $approvedBikeCount = Applicant::where('status', 'pending')
+        ->count();
         $availableBikeCount = Applicant::where('ci_status', 'pending')->count();
         return [
         Stat::make('Applicants Awaiting Review', $approvedBikeCount)

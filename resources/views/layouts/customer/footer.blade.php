@@ -25,6 +25,10 @@
     font-size: 30px;
     cursor: pointer;
 }
+.blue-link {
+        color: blue;
+        text-decoration: underline; /* Optionally, add an underline to make it look like a typical link */
+    }
 
 /* Add more styling as needed */
 
@@ -36,16 +40,18 @@
             <div class="flex flex-col self-center text-sm text-center md:block lg:col-start-1 md:space-x-6">
                 <span>Copy right © 2023 by Follow the Leader</span>
                 <a rel="noopener noreferrer" href="#" class="open-modal" data-target="privacy-modal">
-                    <span>Privacy policy</span>
+                    <a href="{{ route('terms.privacy') }}" class="blue-link">Privacy policy</a>
+
                 </a>
                 <a rel="noopener noreferrer" href="#" class="open-modal" data-target="terms-modal">
-                    <span>Terms of service</span>
+                    <a href="{{ route('terms.show') }}" class="blue-link">Terms and Conditions</a>
+
                 </a>
             </div>
         </div>
     </div>
 </footer>
-
+{{--
 <div id="privacy-modal" class="modal">
     <div class="modal-content">
         <span class="close-modal" data-target="privacy-modal">&times;</span>
@@ -79,4 +85,4 @@ closeButtons.forEach(button => {
         modal.style.display = "none";
     });
 });
-</script>
+</script> --}}

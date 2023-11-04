@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\PrivacyController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\summaryController;
 use App\Models\Applicant;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +13,7 @@ use App\Http\Controllers\LoanApplicantController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\receiptController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TermsController;
 use App\Livewire\Transaction;
 use App\Livewire\BikeList;
 use Livewire\Livewire;
@@ -126,3 +130,14 @@ Route::get('pay/{record}', [PaymentController::class, 'pay'])->name('payment');
 // Route::get('error', [PaymentController::class, 'error']);
 Route::get('success', [PaymentController::class, 'success'])->name('success');
 Route::get('error', [PaymentController::class, 'error'])->name('error');
+Route::get('/terms', [TermsController::class, 'show'])->name('terms.show');
+Route::get('/privacy', [PrivacyController::class, 'show'])->name('terms.privacy');
+Route::get('/reports', function(){
+    return 'reports';
+})->name('terms.reports');
+Route::get('/report-pdf', [ReportController::class, 'reportPDF'])->name('report-pdf');
+
+// Generate and download the PDF report
+Route::get('/report-pdf-form', [ReportController::class, 'reportPDForm'])->name('report-pdf-form');
+Route::get('/summary', [summaryController::class, 'summary'])->name('summary');
+Route::get('/summary-form', [summaryController::class, 'summary_form'])->name('summary-form');

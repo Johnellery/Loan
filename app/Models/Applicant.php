@@ -92,6 +92,7 @@ class Applicant extends Model
     'payment_schedule',
     'payment_schedule_slug',
     'payment_date',
+    'repossession_date',
     'progress',
     'ci_date',
     'status_date',

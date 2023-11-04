@@ -3,11 +3,13 @@
 namespace App\Filament\Resources\ApplicantResource\Pages;
 
 use App\Filament\Resources\ApplicantResource;
+use App\Models\Applicant;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\DatePicker;
 class ListApplicants extends ListRecords
 {
     protected static string $resource = ApplicantResource::class;
@@ -15,6 +17,22 @@ class ListApplicants extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('Generate Reports')
+            ->color('warning')
+            ->url(fn() => route('report-pdf-form'))
+            ->openUrlInNewTab()
+            ->visible(function () {
+                $user = Auth::user();
+                return $user->role->name === 'Admin' || $user->role->name === 'Staff';
+            }),
+            Actions\Action::make('Loan Summary')
+            ->color('success')
+            ->url(fn() => route('summary-form'))
+            ->openUrlInNewTab()
+            ->visible(function () {
+                $user = Auth::user();
+                return $user->role->name === 'Admin' || $user->role->name === 'Staff';
+            }),
             Actions\CreateAction::make()
             ->visible(function () {
                 $user = Auth::user();

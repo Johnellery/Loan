@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Filament\Infolists;
 use Filament\Infolists\Infolist;
@@ -54,7 +55,7 @@ class RepossessionResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        ->query(fn (Applicant $query) => self::applyRoleConditions($query))
+        // ->query(fn (Applicant $query) => self::applyRoleConditions($query))
         ->defaultPaginationPageOption(5)
         ->defaultSort('payment_schedule', 'desc')
         ->deferLoading()
@@ -104,6 +105,7 @@ class RepossessionResource extends Resource
                 // }),
                 Tables\Columns\TextColumn::make('is_status')
                 ->badge()
+                ->label('Status')
                 ->getStateUsing(function (Applicant $record): string {
                     if ($record->isRepossessing()) {
                         return 'Repossessing';
@@ -149,14 +151,14 @@ class RepossessionResource extends Resource
                             fn (Builder $query, $date): Builder => $query->whereDate('payment_schedule', '<=', $date),
                         );
                 }),
-                SelectFilter::make('is_paid')
-                ->options([
-                    'Paid' => 'Paid',
-                    'Pending' => 'Pending',
-                    'Missed' => 'Missed',
-                ])
-                ->native(false)
-                ->label('Payment status'),
+                // SelectFilter::make('is_paid')
+                // ->options([
+                //     'Paid' => 'Paid',
+                //     'Pending' => 'Pending',
+                //     'Missed' => 'Missed',
+                // ])
+                // ->native(false)
+                // ->label('Payment status'),
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
@@ -164,7 +166,10 @@ class RepossessionResource extends Resource
                     Tables\Actions\Action::make('Repossession Success')
                     ->label('Repossession Success')
                     ->action(function (Applicant $record) {
-                        $record->update(['is_status' => 'success']);
+                        $currentDate = Carbon::now();
+                        $record->update(['is_status' => 'success',
+                                            'repossession_date' => $currentDate
+                                        ]);
                     })
                     ->requiresConfirmation()
                     ->hidden(fn (Applicant $record): bool => $record->is_status === 'active' || $record->is_status === 'failed' || $record->is_status === 'success')
@@ -173,7 +178,10 @@ class RepossessionResource extends Resource
                 Tables\Actions\Action::make('Repossession Failed')
                 ->label('Repossession Failed')
                     ->action(function (Applicant $record) {
-                        $record->update(['is_status' => 'failed']);
+                        $currentDate = Carbon::now();
+                        $record->update(['is_status' => 'failed',
+                        'repossession_date' => $currentDate
+                    ]);
                     })
                     ->requiresConfirmation()
                     ->hidden(fn (Applicant $record): bool => $record->is_status === 'success' || $record->is_status === 'active' || $record->is_status === 'failed')
@@ -259,6 +267,29 @@ class RepossessionResource extends Resource
 
     return $query;
 }
+public static function getEloquentQuery(): Builder
+{
+    $user = Auth::user();
+    $query = parent::getEloquentQuery();
+
+    if ($user->role->name === 'Admin') {
+        return $query->withoutGlobalScopes([SoftDeletingScope::class])
+                     ->where('status', 'approved')
+                     ->where('remaining_balance', '>', 0)
+                     ->where('ci_status', 'approved');
+    } elseif ($user->role->name === 'Staff' || $user->role->name === 'Collector') {
+        return $query->where('branch_id', $user->branch_id)
+                     ->withoutGlobalScopes([SoftDeletingScope::class])
+                     ->where('remaining_balance', '>', 0)
+                     ->where('ci_status', 'approved')
+                     ->where(function ($query) {
+                         $query->where('status', 'approved');
+                     });
+    }
+
+    return $query;
+}
+
 public static function infolist(Infolist $infolist): Infolist
 {
     return $infolist

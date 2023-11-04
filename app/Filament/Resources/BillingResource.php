@@ -75,6 +75,7 @@ class BillingResource extends Resource
                             ->where('branch_id', $userBranchId)
                              ->where('ci_status', 'approved')
                             ->where('remaining_balance', '>', 0)
+                            ->where('is_status', 'active')
                             ->pluck(DB::raw("CONCAT(first, ' ', middle, ' ', last)"), 'id');
                     })
                     ->label('Customer')

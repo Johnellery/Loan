@@ -108,6 +108,7 @@ return new class () extends Migration {
             // $table->string('paid6')->nullable();
             $table->string('progress')->default('0');
             $table->timestamp('status_date')->nullable();
+            $table->timestamp('repossession_date')->nullable();
             $table->timestamp('ci_date')->nullable();
             $table->string('remark')->nullable();
             $table->string('ci_remark')->nullable();
