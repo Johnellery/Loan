@@ -79,6 +79,7 @@ return array(
     'Omnipay\\PayPal\\' => array($vendorDir . '/omnipay/paypal/src'),
     'Omnipay\\Common\\' => array($vendorDir . '/omnipay/common/src/Common'),
     'NunoMaduro\\Collision\\' => array($vendorDir . '/nunomaduro/collision/src'),
+    'Njxqlus\\Filament\\Components\\' => array($vendorDir . '/njxqlus/filament-lightbox/src'),
     'Njxqlus\\FilamentProgressbar\\' => array($vendorDir . '/njxqlus/filament-progressbar/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
     'Money\\' => array($vendorDir . '/moneyphp/money/src'),

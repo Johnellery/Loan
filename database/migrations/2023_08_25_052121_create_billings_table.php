@@ -48,6 +48,8 @@ return new class () extends Migration {
             ->default('0');
             $table->string('billing_status')
             ->default('processing');
+            $table->string('image') ->nullable();
+            $table->string('phone') ->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

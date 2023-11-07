@@ -86,6 +86,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     {
         return $this->HasMany(Applicant::class);
     }
+    public function gcash(): HasMany
+    {
+        return $this->HasMany(Gcash::class);
+    }
     public function billing(): HasMany
     {
         return $this->HasMany(Billing::class);

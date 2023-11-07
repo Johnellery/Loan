@@ -26,7 +26,10 @@ class Branch extends Model
     {
         return $this->HasMany(Bike::class);
     }
-
+    public function gcash(): HasMany
+    {
+        return $this->HasMany(Gcash::class);
+    }
     public function user(): BelongsToMany
     {
         return $this->BelongsToMany(User::class);

@@ -37,7 +37,7 @@ class BikeResource extends Resource
         $user = Auth::user();
         return $form
             ->schema([
-                Forms\Components\Section::make([
+            Forms\Components\Section::make([
             Forms\Components\Hidden::make('user_id')
             ->default($user->id),
             Forms\Components\Hidden::make('branch_id')

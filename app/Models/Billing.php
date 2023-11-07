@@ -28,7 +28,9 @@ class Billing extends Model
         'is_processed',
         'payment_type',
         'interests',
-        'applicant_user_id'
+        'applicant_user_id',
+        'image',
+        'phone',
     ];
 
     public function Applicant()
@@ -39,7 +41,10 @@ class Billing extends Model
     {
         return $this->belongsTo(Branch::class);
     }
-
+    public function gcash()
+    {
+        return $this->hasOne(Gcash::class, 'branch_id', 'branch_id');
+    }
     public function bike()
     {
         return $this->belongsTo(Bike::class);

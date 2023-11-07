@@ -92,13 +92,8 @@ class BillingResource extends Resource
                         if ($applicant) {
                             $createdDate = $applicant->created_at;
                             $currentDate = now();
-
-
                             $oneMonthAfter = $createdDate->copy()->addMonth();
-
                             $twoMonthsAfter = $createdDate->copy()->addMonths(2);
-
-
                             $options = [
                                 'in_partial' => 'In partial',
                                 'fullypaid' => 'Fully paid',
@@ -225,7 +220,7 @@ class BillingResource extends Resource
                         thousandsSeparator: ',',
                     ),
                 Tables\Columns\TextColumn::make('cashier')
-                    ->label('Cashier / Authorized Representative')
+                    ->label('Cashier / E-wallet')
                     ->searchable(),
                     Tables\Columns\TextColumn::make('created_at')
                     ->label('Date')

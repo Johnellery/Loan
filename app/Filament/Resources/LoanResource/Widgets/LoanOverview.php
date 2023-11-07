@@ -15,11 +15,17 @@ class LoanOverview extends BaseWidget
     public ?Model $record = null;
     protected function getStats(): array
     {
-        $approvedBikeCount = Applicant::where('is_paid', 'Paid')->count();
-        $availableBikeCount = Applicant::where('is_paid', 'Pending')->count();
-        $outOfStockBikeCount = Applicant::where('is_paid', 'Missed')->count();
+        $user = Auth::user();
+        $approvedBikeCount = Applicant::where('is_paid', 'Paid')
+        ->where('branch_id', $user->branch_id)
+        ->count();
+        $availableBikeCount = Applicant::where('is_paid', 'Pending')
+        ->where('branch_id', $user->branch_id)->count();
+        $outOfStockBikeCount = Applicant::where('is_paid', 'Missed')
+        ->where('branch_id', $user->branch_id)->count();
         $currentDate = Carbon::now();
         $billingRecords = Billing::where('billing_status', 'remitted')
+        ->where('branch_id', $user->branch_id)
             ->whereDate('created_at', $currentDate)
             ->count();
 

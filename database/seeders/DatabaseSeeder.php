@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Applicant;
 use App\Models\Bike;
 use App\Models\Branch;
+use App\Models\Gcash;
 use App\Models\Rate;
 use App\Models\Role;
 use App\Models\User;
@@ -127,11 +128,12 @@ class DatabaseSeeder extends Seeder
     $applicantStates = [ 'Applicant','Applicant2','Applicant3','Applicant4','Applicant5','Applicant6','Applicant7','Applicant8','Applicant9','Applicant10',
     'Applicant11','Applicant12','Applicant13','Applicant14',
 
-    'Applicant15','Applicant16','Applicant17','Applicant18','Applicant19','Applicant20','Applicant21','Applicant22','Applicant23','Applicant24',
-    'Applicant25','Applicant26','Applicant27','Applicant28',
-    'Applicant29','Applicant30','Applicant31','Applicant32','Applicant33','Applicant34','Applicant35','Applicant36','Applicant37','Applicant38',
-    'Applicant39','Applicant40','Applicant41',
-    'Applicant42',];
+    'Applicant15','Applicant16','Applicant17','Applicant18','Applicant19','Applicant20','Applicant21','Applicant22',
+];
+    // 'Applicant23','Applicant24',
+    // 'Applicant25','Applicant26','Applicant27','Applicant28',
+    // 'Applicant29','Applicant30','Applicant31','Applicant32','Applicant33','Applicant34','Applicant35','Applicant36','Applicant37','Applicant38',
+    // 'Applicant39','Applicant40','Applicant41',    'Applicant42',
     // 'Applicant43','Applicant44','Applicant45','Applicant46','Applicant47','Applicant48','Applicant49','Applicant50','Applicant51',
     // 'Applicant52','Applicant53','Applicant54','Applicant55','Applicant56','Applicant57',
         foreach ($applicantStates as $applicantState) {
@@ -177,6 +179,24 @@ class DatabaseSeeder extends Seeder
     //                 'remaining_balance' => '0',
     //             ]);
         //APPLICANT
+        $gcash = Gcash::create([
+            'phone' => '09466837683',
+            'name' => 'Edgar Manlapaz',
+            'ewallet' => 'Gcash',
+            'image' => 'paymaya.jpg',
+            'user_id' => 3,
+            'branch_id' => 2,
+        ]);
+        $paymaya = Gcash::create([
+            'phone' => '09466837683',
+            'name' => 'Edgar Manlapaz',
+            'ewallet' => 'Paymaya',
+            'image' => 'paymaya.jpg',
+            'user_id' => 3,
+            'branch_id' => 2,
+        ]);
             }
+
+
 }
 

@@ -32,7 +32,7 @@ class BillingPolicy
     public function create(User $user): bool
     {
         $name = $user->role->name;
-        return $name === 'Admin' || $name === 'Staff' || $name === 'Collector';
+        return $name === 'Admin' || $name === 'Staff' || $name === 'Collector' || $name === 'Customer';
     }
 
     /**

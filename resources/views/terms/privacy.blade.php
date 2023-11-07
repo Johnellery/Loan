@@ -1,3 +1,14 @@
+<?php
+use App\Models\Term;
+
+$terms = Term::all(); // Store all terms in the $terms variable
+
+foreach ($terms as $term) {
+    $termName = $term->name;
+    // Now you can use $termName to access the 'name' property for each term
+}
+?>
+
 <!DOCTYPE html>
 <html>
 
@@ -25,8 +36,8 @@
 </head>
 
 <body class="container">
-    <h1>Privacy Policy</h1>
-
+    <h1></h1>
+    <p><?php echo $termName; ?></p>
     <p>This Privacy Policy outlines how we collect, use, disclose, and safeguard your personal information. By using our services, you consent to the practices described in this policy. Please read this policy carefully and contact us if you have any questions or concerns.</p>
 
     <h2>Information We Collect</h2>

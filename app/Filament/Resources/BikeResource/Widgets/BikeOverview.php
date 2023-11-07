@@ -12,11 +12,16 @@ class BikeOverview extends BaseWidget
     public ?Model $record = null;
     protected function getStats(): array
     {
-        $approvedBikeCount = Bike::where('status', 'approved')->count();
+        $user = Auth::user();
+        $approvedBikeCount = Bike::where('status', 'approved')
+        ->where('branch_id', $user->branch_id)
+                                ->count();
         $availableBikeCount = Bike::where('is_available', 'available')
+        ->where('branch_id', $user->branch_id)
                                 ->where('status', 'approved')
                                 ->count();
         $outOfStockBikeCount = Bike::where('is_available', 'unavailable')
+        ->where('branch_id', $user->branch_id)
                                 ->where('status', 'approved')
                                 ->count();
         return [

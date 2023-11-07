@@ -25,6 +25,7 @@
         "laraveldaily/laravel-invoices": "^3.1",
         "league/omnipay": "^3.2",
         "livewire/livewire": "^3.0",
+        "njxqlus/filament-lightbox": "^2.1",
         "njxqlus/filament-progressbar": "^1.0",
         "omnipay/paypal": "^3.0",
         "rickdbcn/filament-email": "^1.0",

@@ -4,7 +4,9 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\RateResource\Pages;
 use App\Filament\Resources\RateResource\RelationManagers;
+use App\Models\Bike;
 use App\Models\Rate;
+use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -168,5 +170,8 @@ class RateResource extends Resource
             'edit' => Pages\EditRate::route('/{record}/edit'),
         ];
     }
-
+    protected static function getCashierDefault(Bike $record)
+{
+    return "{$record->image}";
+}
 }
